@@ -33,7 +33,7 @@ Class InventoryExtras {
 
 	private function doPostInstall() {
 		$this->doAddInvDetBlockAndFields();
-		$this->doAddProdBlockAndFields();
+		$this->doAddProdFields();
 	}
 
 	private function doAddInvDetBlockAndFields() {
@@ -76,7 +76,7 @@ Class InventoryExtras {
 		$fld->setRelatedModules('InventoryDetails');
 	}
 
-	private function doAddProdBlockAndFields() {
+	private function doAddProdFields() {
 		require_once 'vtlib/Vtiger/Module.php';
 		require_once 'vtlib/Vtiger/Block.php';
 		require_once 'vtlib/Vtiger/Field.php';
@@ -92,7 +92,6 @@ Class InventoryExtras {
 		$fld->helpinfo = 'LBL_HELP_PROD_QTY_IN_ORDER';
 		$fld->uitype = 7;
 		$fld->typeofdata = 'N~O';
-		$fld->presence = 0;
 		$fld->displaytype = 2;
 		$fld->masseditable = 0;
 
