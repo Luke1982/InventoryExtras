@@ -107,11 +107,11 @@ Class InventoryExtras {
 
 		$mod = Vtiger_Module::getInstance('InventoryDetails');
 		$blk = Vtiger_Block::getInstance('LBL_INVDET_SO_INFO', $mod);
-		$blk->delete(true);
+		if ($blk !== false) $blk->delete(true);
 
 		$mod = Vtiger_Module::getInstance('Products');
 		$fld = Vtiger_Field::getInstance('inventoryextras_prod_qty_in_order', $mod);
-		$fld->delete();
+		if ($fld !== false) $fld->delete();
 
 		// Also remove the columns from InventoryDetails table
 		$adb->query("ALTER TABLE vtiger_inventorydetails DROP COLUMN inventoryextras_inv_sibling, DROP COLUMN inventoryextras_qty_in_order");
