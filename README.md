@@ -12,3 +12,8 @@ There will be a new field in products called quantity in order. That field will 
 
 ### Pending orders widget in Products
 Products will receive a new widget where there will be a list of all salesorders that have an inventorydetails line related to it where the product ID is this one, and the 'quantity in order' is greater than zero. The widget will show a link to the salesorder and the quantity in order this salesorder represents.
+
+## Known limitations
+The biggest limitation is that getting the 'sibling' inventorydetails line from an invoice for a salesorder line is not easy. The module will collect the invoices related to the salesorder that this line belongs to and select the first line that has a similar product. That means that when you create multiple invoices for a salesorder and list a product that lives on that salesorder in both invoices (if, for instance you have two invoices) **only** the first one will be selected, since the module has no way of knowing which one you want to regard as the 'opposite' line.
+
+Also, when you list a product more than once on a salesorder, the module will select the first one it encounters in invoices, meaning multiple lines on a salesorder could be matched to the same line on an invoice. I will try to perfect this mechanism, but be aware that in edge cases, the module won't be able to match the lines correctly.
