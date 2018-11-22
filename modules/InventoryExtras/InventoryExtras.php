@@ -47,11 +47,11 @@ Class InventoryExtras {
 		$blk->save($mod);
 
 		$fld = new Vtiger_Field();
-		$fld->name  = 'inventoryextras_qty_in_demand';
+		$fld->name  = 'inventoryextras_qty_in_order';
 		$fld->table = 'vtiger_inventorydetails';
-		$fld->column = 'inventoryextras_qty_in_demand';
+		$fld->column = 'inventoryextras_qty_in_order';
 		$fld->columntype = 'INT(11)';
-		$fld->helpinfo = 'LBL_HELP_ID_QTY_IN_DEMAND';
+		$fld->helpinfo = 'LBL_HELP_ID_QTY_IN_ORDER';
 		$fld->uitype = 7;
 		$fld->typeofdata = 'N~O';
 		$fld->presence = 0;
@@ -82,10 +82,10 @@ Class InventoryExtras {
 
 		$mod = Vtiger_Module::getInstance('InventoryDetails');
 		$blk = Vtiger_Block::getInstance('LBL_INVDET_SO_INFO', $mod);
-		if ($blk) $blk->delete(true);
+		$blk->delete(true);
 
 		// Also remove the columns from InventoryDetails table
-		$adb->query("ALTER TABLE vtiger_inventorydetails DROP COLUMN inventoryextras_inv_sibling, DROP COLUMN inventoryextras_qty_in_demand");
+		$adb->query("ALTER TABLE vtiger_inventorydetails DROP COLUMN inventoryextras_inv_sibling, DROP COLUMN inventoryextras_qty_in_order");
 	}
 
 }
