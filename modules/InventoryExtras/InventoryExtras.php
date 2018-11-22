@@ -34,11 +34,9 @@ Class InventoryExtras {
 	}
 
 	private function doPostInstall() {
-		ini_set('display_errors', 1);
-		error_reporting(E_ALL);
-
 		$this->doAddInvDetBlockAndFields();
 		$this->doAddProdFields();
+		$this->doCreateInvDetAfterSaveHandler();
 	}
 
 	private function doAddInvDetBlockAndFields() {
@@ -120,6 +118,20 @@ Class InventoryExtras {
 		// Also remove the columns from InventoryDetails table
 		$adb->query("ALTER TABLE vtiger_inventorydetails DROP COLUMN " . $this->prefix . "inv_sibling, DROP COLUMN " . $this->prefix . "qty_in_order");
 		$adb->query("ALTER TABLE vtiger_products DROP COLUMN " . $this->prefix . "prod_qty_in_order");
+	}
+
+	private function doCreateInvDetAfterSaveHandler() {
+		global $adb;
+		require 'include/events/include.inc';
+		$em = new VTEventsManager($adb);
+		$eventName = 'vtiger.entity.aftersave';
+		$filePath = 'modules/InventoryExtras/handlers/AfterInvDetSave.php';
+		$className = 'AfterInvDetSave';
+		$em->registerHandler($eventName, $filePath, $className);		
+	}
+
+	public function getPrefix() {
+		return $this->prefix;
 	}
 
 }
