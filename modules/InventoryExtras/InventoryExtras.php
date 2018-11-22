@@ -70,16 +70,18 @@ Class InventoryExtras {
 		$fld->typeofdata = 'I~O';
 		$fld->displaytype = 1;
 		$fld->masseditable = 0;
-		$fld->setRelatedModules('InventoryDetails');
 
-		$blk->addField($fld);		
+		$blk->addField($fld);
+		$fld->setRelatedModules('InventoryDetails');
 	}
 
 	private function removeThisModule() {
 		global $adb;
+		require_once 'vtlib/Vtiger/Module.php';
 		require_once 'vtlib/Vtiger/Block.php';
 
-		$blk = Vtiger_Block::getInstance('LBL_INVDET_SO_INFO');
+		$mod = Vtiger_Module::getInstance('InventoryDetails');
+		$blk = Vtiger_Block::getInstance('LBL_INVDET_SO_INFO', $mod);
 		if ($blk) $blk->delete(true);
 
 		// Also remove the columns from InventoryDetails table
