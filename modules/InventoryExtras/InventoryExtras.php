@@ -9,7 +9,7 @@
  ************************************************************************************/
 Class InventoryExtras {
 
-	$prefix = 'invextras_';
+	private $prefix = 'invextras_';
 
 	/**
 	 * Invoked when special actions are performed on the module.
