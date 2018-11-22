@@ -9,6 +9,8 @@
  ************************************************************************************/
 Class InventoryExtras {
 
+	$prefix = 'invextras_';
+
 	/**
 	 * Invoked when special actions are performed on the module.
 	 * @param String Module name
@@ -48,9 +50,9 @@ Class InventoryExtras {
 		$blk->save($mod);
 
 		$fld = new Vtiger_Field();
-		$fld->name  = 'inventoryextras_qty_in_order';
+		$fld->name  = $this->prefix . 'qty_in_order';
 		$fld->table = 'vtiger_inventorydetails';
-		$fld->column = 'inventoryextras_qty_in_order';
+		$fld->column = $this->prefix . 'qty_in_order';
 		$fld->columntype = 'INT(11)';
 		$fld->helpinfo = 'LBL_HELP_ID_QTY_IN_ORDER';
 		$fld->uitype = 7;
@@ -62,9 +64,9 @@ Class InventoryExtras {
 		$blk->addField($fld);
 
 		$fld = new Vtiger_Field();
-		$fld->name  = 'inventoryextras_inv_sibling';
+		$fld->name  = $this->prefix . 'inv_sibling';
 		$fld->table = 'vtiger_inventorydetails';
-		$fld->column = 'inventoryextras_inv_sibling';
+		$fld->column = $this->prefix . 'inv_sibling';
 		$fld->columntype = 'INT(11)';
 		$fld->helpinfo = 'LBL_HELP_ID_INV_SIBLING';
 		$fld->uitype = 10;
@@ -85,9 +87,9 @@ Class InventoryExtras {
 		$blk = Vtiger_Block::getInstance('LBL_STOCK_INFORMATION', $mod);
 
 		$fld = new Vtiger_Field();
-		$fld->name  = 'inventoryextras_prod_qty_in_order';
+		$fld->name  = $this->prefix . 'prod_qty_in_order';
 		$fld->table = 'vtiger_products';
-		$fld->column = 'inventoryextras_prod_qty_in_order';
+		$fld->column = $this->prefix . 'prod_qty_in_order';
 		$fld->columntype = 'INT(11)';
 		$fld->helpinfo = 'LBL_HELP_PROD_QTY_IN_ORDER';
 		$fld->uitype = 7;
@@ -109,12 +111,12 @@ Class InventoryExtras {
 		if ($blk !== false) $blk->delete(true);
 
 		$mod = Vtiger_Module::getInstance('Products');
-		$fld = Vtiger_Field::getInstance('inventoryextras_prod_qty_in_order', $mod);
+		$fld = Vtiger_Field::getInstance($this->prefix . 'prod_qty_in_order', $mod);
 		if ($fld !== false) $fld->delete();
 
 		// Also remove the columns from InventoryDetails table
-		$adb->query("ALTER TABLE vtiger_inventorydetails DROP COLUMN inventoryextras_inv_sibling, DROP COLUMN inventoryextras_qty_in_order");
-		$adb->query("ALTER TABLE vtiger_products DROP COLUMN inventoryextras_prod_qty_in_order");
+		$adb->query("ALTER TABLE vtiger_inventorydetails DROP COLUMN {$this->prefix}inv_sibling, DROP COLUMN {$this->prefix}qty_in_order");
+		$adb->query("ALTER TABLE vtiger_products DROP COLUMN {$this->prefix}prod_qty_in_order");
 	}
 
 }
