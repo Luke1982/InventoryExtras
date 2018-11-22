@@ -38,7 +38,7 @@ Class InventoryExtras {
 		error_reporting(E_ALL);
 
 		$this->doAddInvDetBlockAndFields();
-		// $this->doAddProdFields();
+		$this->doAddProdFields();
 	}
 
 	private function doAddInvDetBlockAndFields() {
