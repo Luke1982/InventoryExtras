@@ -82,7 +82,7 @@ Class InventoryExtras {
 		require_once 'vtlib/Vtiger/Field.php';
 
 		$mod = Vtiger_Module::getInstance('Products');
-		$blk = new Vtiger_Block::getInstance('LBL_STOCK_INFORMATION');
+		$blk = Vtiger_Block::getInstance('LBL_STOCK_INFORMATION', $mod);
 
 		$fld = new Vtiger_Field();
 		$fld->name  = 'inventoryextras_prod_qty_in_order';
