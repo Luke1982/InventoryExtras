@@ -44,6 +44,7 @@ Class InventoryExtras {
 		$blk = new Vtiger_Block();
 
 		$blk->label = 'LBL_INVDET_SO_INFO';
+		$blk->save($mod);
 
 		$fld = new Vtiger_Field();
 		$fld->name  = 'inventoryextras_qty_in_demand';
@@ -71,9 +72,7 @@ Class InventoryExtras {
 		$fld->masseditable = 0;
 		$fld->setRelatedModules('InventoryDetails');
 
-		$blk->addField($fld);
-
-		$blk->save($mod);		
+		$blk->addField($fld);		
 	}
 
 	private function removeThisModule() {
