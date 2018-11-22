@@ -34,6 +34,9 @@ Class InventoryExtras {
 	}
 
 	private function doPostInstall() {
+		ini_set('display_errors', 1);
+		error_reporting(E_ALL);
+		
 		$this->doAddInvDetBlockAndFields();
 		$this->doAddProdFields();
 	}
