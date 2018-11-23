@@ -13,9 +13,27 @@ Class InventoryExtras {
 
 	private $i18n_so = array(
 		'langs' => array('en_us', 'nl_nl'),
-		'so_no_stock_change' => array(
+		$this->prefix . 'so_no_stock_change' => array(
 			'en_us' => 'Don\'t affect the stock',
 			'nl_nl' => 'Geen invloed op voorraad',
+		),
+	);
+	private $i18n_invdet = array(
+		'langs' => array('en_us', 'nl_nl'),
+		$this->prefix . 'qty_in_order' => array(
+			'en_us' => 'Quantity still in order',
+			'nl_nl' => 'Aantal nog in order',
+		),
+		$this->prefix . 'inv_sibling' => array(
+			'en_us' => 'Invoice sibline line',
+			'nl_nl' => 'Gekoppelde factuurregel',
+		),
+	);
+	private $i18n_prod = array(
+		'langs' => array('en_us', 'nl_nl'),
+		$this->prefix . 'prod_qty_in_order' => array(
+			'en_us' => 'Total no. still in order',
+			'nl_nl' => 'Totaal nog in order',
 		),
 	);
 
@@ -169,6 +187,8 @@ Class InventoryExtras {
 
 	private doUpdateLangFiles() {
 		$this->updateLangFor('SalesOrder', $this->i18n_so);
+		$this->updateLangFor('Products', $this->i18n_prod);
+		$this->updateLangFor('InventoryDetails', $this->i18n_invdet);
 	}
 
 	private function updateLangFor($modulename, $i18n) {
