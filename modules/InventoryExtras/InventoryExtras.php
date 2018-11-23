@@ -213,4 +213,38 @@ Class InventoryExtras {
 		return $adb->fetch_array($r)['quantity'];
 	}
 
+	public function getQtyInOrderByProduct($productid) {
+		global $adb;
+		$qty_tot = 0;
+		$r = $adb->pquery("SELECT vtiger_inventorydetails.{$this->prefix}qty_in_order AS qty FROM 
+			vtiger_inventorydetails INNER JOIN vtiger_crmentity ON 
+			vtiger_inventorydetails.inventorydetailsid = vtiger_crmentity.crmid 
+			WHERE vtiger_crmentity.deleted = ? 
+			AND vtiger_inventorydetails.productid = ?", array(0, $productid));
+
+		while ($line = $adb->fetch_array($r)) {
+			$qty_tot += (float)$line['qty'];
+		}
+		return $qty_tot;
+	}
+
+	public function updateProductQtyInOrder($productid, $qty_in_order) {
+		global $current_user;
+		require_once 'modules/Products/Products.php';
+
+		$p = new Products();
+		$p->retrieve_entity_info($productid, 'Products');
+		$p->id = $productid;
+		$p->mode = 'edit';
+
+		$p->column_fields[$this->prefix . 'prod_qty_in_order'] = $qty_in_order;
+
+		$handler = vtws_getModuleHandlerFromName('Products', $current_user);
+		$meta = $handler->getMeta();
+		$p->column_fields = DataTransform::sanitizeRetrieveEntityInfo($p->column_fields, $meta);
+
+		$p->save('Products');		
+	}
+	
+
 }
