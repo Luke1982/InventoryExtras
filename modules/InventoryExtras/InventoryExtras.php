@@ -36,6 +36,7 @@ Class InventoryExtras {
 	private function doPostInstall() {
 		$this->doAddInvDetBlockAndFields();
 		$this->doAddProdFields();
+		$this->doAddSoFields();
 		$this->doCreateInvDetAfterSaveHandler();
 	}
 
@@ -95,6 +96,28 @@ Class InventoryExtras {
 		$fld->helpinfo = 'LBL_HELP_PROD_QTY_IN_ORDER';
 		$fld->uitype = 7;
 		$fld->typeofdata = 'N~O';
+		$fld->displaytype = 1;
+		$fld->masseditable = 0;
+
+		$blk->addField($fld);
+	}
+
+	private function doAddSoFields() {
+		require_once 'vtlib/Vtiger/Module.php';
+		require_once 'vtlib/Vtiger/Block.php';
+		require_once 'vtlib/Vtiger/Field.php';
+
+		$mod = Vtiger_Module::getInstance('SalesOrder');
+		$blk = Vtiger_Block::getInstance('LBL_SO_INFORMATION', $mod);
+
+		$fld = new Vtiger_Field();
+		$fld->name  = $this->prefix . 'so_no_stock_change';
+		$fld->table = 'vtiger_salesorder';
+		$fld->column = $this->prefix . 'so_no_stock_change';
+		$fld->columntype = 'VARCHAR(3)';
+		$fld->helpinfo = 'LBL_HELP_SO_LEAVE_STOCK_ALONE';
+		$fld->uitype = 56;
+		$fld->typeofdata = 'C~O';
 		$fld->displaytype = 1;
 		$fld->masseditable = 0;
 
