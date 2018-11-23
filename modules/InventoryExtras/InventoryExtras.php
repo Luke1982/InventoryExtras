@@ -138,9 +138,14 @@ Class InventoryExtras {
 		$fld = Vtiger_Field::getInstance($this->prefix . 'prod_qty_in_order', $mod);
 		if ($fld !== false) $fld->delete();
 
+		$mod = Vtiger_Module::getInstance('SalesOrder');
+		$fld = Vtiger_Field::getInstance($this->prefix . 'so_no_stock_change', $mod);
+		if ($fld !== false) $fld->delete();
+
 		// Also remove the columns from InventoryDetails table
 		$adb->query("ALTER TABLE vtiger_inventorydetails DROP COLUMN " . $this->prefix . "inv_sibling, DROP COLUMN " . $this->prefix . "qty_in_order");
 		$adb->query("ALTER TABLE vtiger_products DROP COLUMN " . $this->prefix . "prod_qty_in_order");
+		$adb->query("ALTER TABLE vtiger_salesorder DROP COLUMN " . $this->prefix . "so_no_stock_change");
 	}
 
 	private function doCreateInvDetAfterSaveHandler() {
