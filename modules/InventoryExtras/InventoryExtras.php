@@ -48,8 +48,8 @@ Class InventoryExtras {
 	private $i18n_prod = array(
 		'langs' => array('en_us', 'nl_nl'),
 		'invextras_prod_qty_in_order' => array(
-			'en_us' => 'Total no. still in order',
-			'nl_nl' => 'Totaal nog in order',
+			'en_us' => 'Qty',
+			'nl_nl' => 'Aantal',
 		),
 		'LBL_HELP_PROD_QTY_IN_ORDER' => array(
 			'en_us' => 'The sum of all \'qty\'s in order\' for all lines related to this product.',
