@@ -25,7 +25,7 @@ Class InventoryExtras {
 			'nl_nl' => 'Aantal nog in order',
 		),
 		$this->prefix . 'inv_sibling' => array(
-			'en_us' => 'Invoice sibline line',
+			'en_us' => 'Invoice sibling line',
 			'nl_nl' => 'Gekoppelde factuurregel',
 		),
 	);
