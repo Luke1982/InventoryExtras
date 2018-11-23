@@ -17,6 +17,10 @@ Class InventoryExtras {
 			'en_us' => 'Don\'t affect the stock',
 			'nl_nl' => 'Geen invloed op voorraad',
 		),
+		'LBL_HELP_SO_LEAVE_STOCK_ALONE' => array(
+			'en_us' => 'This will avoid lines on related invoices from being linked to lines on this salesorder. It will also avoid the lines on this salesorder to affect the total no. in order on the product.',
+			'nl_nl' => 'Als dit aan staat worden er geen factuurregels gezocht die tegenover de regels van de order moeten komen te staan. De regels van deze order hebben dan ook geen invloed op het product (bijvoorbeeld het aantal \'in order\'',
+		),
 	);
 	private $i18n_invdet = array(
 		'langs' => array('en_us', 'nl_nl'),
@@ -28,12 +32,28 @@ Class InventoryExtras {
 			'en_us' => 'Invoice sibling line',
 			'nl_nl' => 'Gekoppelde factuurregel',
 		),
+		'LBL_INVDET_SO_INFO' => array(
+			'en_us' => 'SalesOrder info (when this line is related to a SalesOrder)',
+			'nl_nl' => 'Verkooporder informatie (wanneer deze regel aan een order in gekoppeld)',
+		),
+		'LBL_HELP_ID_QTY_IN_ORDER' => array(
+			'en_us' => 'No. \'still in order\' that this line represents',
+			'nl_nl' => 'Aantal \'nog in order\' voor deze regel',
+		),
+		'LBL_HELP_ID_INV_SIBLING' => array(
+			'en_us' => 'This is the line on an invoice that is this line\'s sibling, or \'opposed\'',
+			'nl_nl' => 'De regel op een aan deze order gerelateerde factuur die tegenover deze regel staat',
+		),
 	);
 	private $i18n_prod = array(
 		'langs' => array('en_us', 'nl_nl'),
 		'invextras_prod_qty_in_order' => array(
 			'en_us' => 'Total no. still in order',
 			'nl_nl' => 'Totaal nog in order',
+		),
+		'LBL_HELP_PROD_QTY_IN_ORDER' => array(
+			'en_us' => 'The sum of all \'qty\'s in order\' for all lines related to this product.',
+			'nl_nl' => 'Het totaal van alle regels waarbij dit product nog \'in order\' staat',
 		),
 	);
 
