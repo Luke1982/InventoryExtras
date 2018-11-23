@@ -12,6 +12,7 @@ Class InventoryExtras {
 	private $prefix = 'invextras_';
 
 	private $i18n_so = array(
+		'langs' => array('en_us', 'nl_nl'),
 		'so_no_stock_change' => array(
 			'en_us' => 'Don\'t affect the stock',
 			'nl_nl' => 'Geen invloed op voorraad',
@@ -171,8 +172,15 @@ Class InventoryExtras {
 	}
 
 	private function updateLangFor($modulename, $i18n) {
-		foreach (glob('modules/' . $modulename . '/language/*.custom.php') as $lang_file) {
-			include $lang_file;
+		$langs = $i18n['langs'];
+		unset($i18n['langs']);
+		foreach ($langs as $lang) {
+			$lang_file = 'modules/' . $modulename . '/language/' . $lang . '.custom.php';
+			if (file_exists($lang_file)) {
+				include $lang_file;
+			} else {
+				$custom_strings = array();
+			}
 			foreach ($i18n as $label => $langs) {
 				foreach ($langs as $lang => $value) {
 					if (strpos($lang_file, $lang) !== false) {
@@ -185,7 +193,7 @@ Class InventoryExtras {
 					}
 				}
 			}
-		}		
+		}
 	}
 
 	public function getPrefix() {
