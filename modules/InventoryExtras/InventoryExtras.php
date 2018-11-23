@@ -85,6 +85,7 @@ Class InventoryExtras {
 		$this->doAddSoFields();
 		$this->doCreateInvDetAfterSaveHandler();
 		$this->doUpdateLangFiles();
+		$this->doAddProductInOrderOnWidget();
 	}
 
 	private function doAddInvDetBlockAndFields() {
@@ -203,6 +204,12 @@ Class InventoryExtras {
 		$filePath = 'modules/InventoryExtras/handlers/AfterInvDetSave.php';
 		$className = 'AfterInvDetSave';
 		$em->registerHandler($eventName, $filePath, $className);		
+	}
+
+	private function doAddProductInOrderOnWidget() {
+		include_once('vtlib/Vtiger/Module.php');
+		$mod_acc = Vtiger_Module::getInstance('Products');
+		$mod_acc->addLink('DETAILVIEWBASIC', 'LBL_PRODUCT_IN_ORDER_ON', 'module=InventoryExtras&action=InventoryExtrasAjax&file=ProductsInOrderOnWidget&return_module=$MODULE$&record=$RECORD$');		
 	}
 
 	private function doUpdateLangFiles() {
