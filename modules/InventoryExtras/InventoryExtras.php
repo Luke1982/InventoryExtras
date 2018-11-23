@@ -287,7 +287,7 @@ Class InventoryExtras {
 		}
 	}
 
-	public function updateInvDetRec($invdet_id, $invdet_qty, $sibl_id, $sibl_qty) {
+	public function updateInvDetRec($invdet_id, $invdet_qty, $sibl_id, $sibl_qty, $saveentity = false) {
 		global $current_user;
 		require_once 'modules/InventoryDetails/InventoryDetails.php';
 
@@ -304,7 +304,12 @@ Class InventoryExtras {
 		$meta = $handler->getMeta();
 		$id->column_fields = DataTransform::sanitizeRetrieveEntityInfo($id->column_fields, $meta);
 
-		$id->save('InventoryDetails');		
+		if ($saveentity) {
+			$id->saveentity('InventoryDetails');
+		} else {
+			$id->save('InventoryDetails');
+		}
+				
 	}
 
 	public function getInvDetQtyById($id) {
