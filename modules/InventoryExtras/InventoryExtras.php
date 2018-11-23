@@ -60,7 +60,7 @@ Class InventoryExtras {
 		$fld->uitype = 7;
 		$fld->typeofdata = 'N~O';
 		$fld->presence = 0;
-		$fld->displaytype = 2;
+		$fld->displaytype = 1;
 		$fld->masseditable = 0;
 
 		$blk->addField($fld);
@@ -245,6 +245,6 @@ Class InventoryExtras {
 
 		$p->save('Products');		
 	}
-	
+
 
 }
