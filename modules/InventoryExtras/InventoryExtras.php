@@ -64,7 +64,7 @@ Class InventoryExtras {
 		$this->doAddProdFields();
 		$this->doAddSoFields();
 		$this->doCreateInvDetAfterSaveHandler();
-		// $this->doUpdateLangFiles();
+		$this->doUpdateLangFiles();
 	}
 
 	private function doAddInvDetBlockAndFields() {
