@@ -55,6 +55,14 @@ Class InventoryExtras {
 			'en_us' => 'The sum of all \'qty\'s in order\' for all lines related to this product.',
 			'nl_nl' => 'Het totaal van alle regels waarbij dit product nog \'in order\' staat',
 		),
+		'LBL_PRODUCT_IN_ORDER_ON' => array(
+			'en_us' => 'Product in order on',
+			'nl_nl' => 'Product in order op',
+		),
+		'LBL_NO_ORDERED_PRODS_FOUND' => array(
+			'en_us' => 'No orders found that this product is in order on',
+			'nl_nl' => 'Geen orders gevonden waarop dit product op in order staat',
+		),
 	);
 
 	/**
