@@ -95,7 +95,7 @@ Class InventoryExtras {
 		$fld->helpinfo = 'LBL_HELP_PROD_QTY_IN_ORDER';
 		$fld->uitype = 7;
 		$fld->typeofdata = 'N~O';
-		$fld->displaytype = 2;
+		$fld->displaytype = 1;
 		$fld->masseditable = 0;
 
 		$blk->addField($fld);
