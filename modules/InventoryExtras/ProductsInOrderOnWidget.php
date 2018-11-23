@@ -10,4 +10,4 @@
 require_once('Smarty_setup.php');
 $smarty = new vtigerCRM_Smarty();
 
-$smarty->display('module/InventoryExtras/ProductsInOrderOn.tpl');
+$smarty->display('modules/InventoryExtras/ProductsInOrderOnWidget.tpl');
