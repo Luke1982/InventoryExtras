@@ -134,4 +134,55 @@ Class InventoryExtras {
 		return $this->prefix;
 	}
 
+	public function getSiblingFromInvoice($invoiceid, $productid) {
+		global $adb;
+
+		$r = $adb->pquery("
+			SELECT vtiger_inventorydetails.inventorydetailsid AS id, 
+			vtiger_inventorydetails.quantity,
+			vtiger_inventorydetails.{$this->prefix}inv_sibling FROM 
+			vtiger_inventorydetails INNER JOIN vtiger_crmentity ON 
+			vtiger_inventorydetails.inventorydetailsid = vtiger_crmentity.crmid WHERE 
+			vtiger_inventorydetails.related_to IN (
+				SELECT vtiger_invoice.salesorderid FROM vtiger_invoice INNER JOIN vtiger_crmentity ON 
+				vtiger_invoice.invoiceid = vtiger_crmentity.crmid WHERE 
+				vtiger_crmentity.deleted = ? AND 
+				vtiger_invoice.invoiceid = ?
+			) 
+			AND vtiger_inventorydetails.productid = ? 
+			AND vtiger_crmentity.deleted = ?", array(0, $invoiceid, $productid, 0));
+
+		if ($adb->num_rows($r) > 0) {
+			return $adb->fetch_array($r);
+		} else {
+			return false;
+		}
+	}
+
+	public function updateInvDetRec($invdet_id, $invdet_qty, $sibl_id, $sibl_qty) {
+		global $current_user;
+		require_once 'modules/InventoryDetails/InventoryDetails.php';
+
+		$id = new InventoryDetails();
+		$id->retrieve_entity_info($invdet_id, 'InventoryDetails');
+		$id->id = $invdet_id;
+		$id->mode = 'edit';
+
+		$id->column_fields[$this->prefix . 'inv_sibling'] = $sibl_id;
+		$id->column_fields[$this->prefix . 'qty_in_order'] = (float)$invdet_qty - (float)$sibl_qty;
+		$id->column_fields['units_delivered_received'] = $sibl_qty;
+
+		$handler = vtws_getModuleHandlerFromName('InventoryDetails', $current_user);
+		$meta = $handler->getMeta();
+		$id->column_fields = DataTransform::sanitizeRetrieveEntityInfo($id->column_fields, $meta);
+
+		$id->save('InventoryDetails');		
+	}
+
+	public function getInvDetQtyById($id) {
+		global $adb;
+		$r = $adb->pquery("SELECT quantity FROM vtiger_inventorydetails WHERE inventorydetailsid = ? LIMIT 1", array($id));
+		return $adb->fetch_array($r)['quantity'];
+	}
+
 }
