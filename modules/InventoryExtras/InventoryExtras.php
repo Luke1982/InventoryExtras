@@ -11,6 +11,13 @@ Class InventoryExtras {
 
 	private $prefix = 'invextras_';
 
+	private $i18n_so = array(
+		'so_no_stock_change' => array(
+			'en_us' => 'Don\'t affect the stock',
+			'nl_nl' => 'Geen invloed op voorraad',
+		),
+	);
+
 	/**
 	 * Invoked when special actions are performed on the module.
 	 * @param String Module name
@@ -38,6 +45,7 @@ Class InventoryExtras {
 		$this->doAddProdFields();
 		$this->doAddSoFields();
 		$this->doCreateInvDetAfterSaveHandler();
+		$this->doUpdateLangFiles();
 	}
 
 	private function doAddInvDetBlockAndFields() {
@@ -156,6 +164,28 @@ Class InventoryExtras {
 		$filePath = 'modules/InventoryExtras/handlers/AfterInvDetSave.php';
 		$className = 'AfterInvDetSave';
 		$em->registerHandler($eventName, $filePath, $className);		
+	}
+
+	private doUpdateLangFiles() {
+		$this->updateLangFor('SalesOrder', $this->i18n_so);
+	}
+
+	private function updateLangFor($modulename, $i18n) {
+		foreach (glob('modules/' . $modulename . '/language/*.custom.php') as $lang_file) {
+			include $lang_file;
+			foreach ($i18n as $label => $langs) {
+				foreach ($langs as $lang => $value) {
+					if (strpos($lang_file, $lang) !== false) {
+						// Lang exists and we have a translation for it
+						if (!array_key_exists($label, $custom_strings)) {
+							// We don't have this label yet
+							$custom_strings[$label] = $value;
+						}
+						file_put_contents($lang_file, "<?php\n\$custom_strings = " . var_export($custom_strings, true) . ";");
+					}
+				}
+			}
+		}		
 	}
 
 	public function getPrefix() {
