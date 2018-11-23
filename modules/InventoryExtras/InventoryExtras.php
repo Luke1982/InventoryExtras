@@ -34,7 +34,7 @@ Class InventoryExtras {
 		),
 		'LBL_INVDET_SO_INFO' => array(
 			'en_us' => 'SalesOrder info (when this line is related to a SalesOrder)',
-			'nl_nl' => 'Verkooporder informatie (wanneer deze regel aan een order in gekoppeld)',
+			'nl_nl' => 'Verkooporder informatie (wanneer deze regel aan een order is gekoppeld)',
 		),
 		'LBL_HELP_ID_QTY_IN_ORDER' => array(
 			'en_us' => 'No. \'still in order\' that this line represents',
