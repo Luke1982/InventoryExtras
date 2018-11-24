@@ -61,7 +61,7 @@ Class InventoryExtras {
 		),
 		'LBL_NO_ORDERED_PRODS_FOUND' => array(
 			'en_us' => 'No orders found that this product is in order on',
-			'nl_nl' => 'Geen orders gevonden waarop dit product op in order staat',
+			'nl_nl' => 'Geen orders gevonden waarop dit product in order staat',
 		),
 	);
 
@@ -94,6 +94,7 @@ Class InventoryExtras {
 		$this->doCreateInvDetAfterSaveHandler();
 		$this->doUpdateLangFiles();
 		$this->doAddProductInOrderOnWidget();
+		$this->doInstallcbUpdates();
 	}
 
 	private function doAddInvDetBlockAndFields() {
@@ -178,6 +179,10 @@ Class InventoryExtras {
 		$fld->masseditable = 0;
 
 		$blk->addField($fld);
+	}
+
+	private function doInstallcbUpdates() {
+		copy('modules/InventoryExtras/cbupdates/InventoryExtras.xml', 'modules/cbupdater/cbupdates/InventoryExtras.xml');
 	}
 
 	private function removeThisModule() {
