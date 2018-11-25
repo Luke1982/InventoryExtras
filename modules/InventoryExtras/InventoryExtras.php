@@ -59,6 +59,10 @@ Class InventoryExtras {
 			'en_us' => 'Product in order on',
 			'nl_nl' => 'Product in order op',
 		),
+		'LBL_PRODUCT_IN_BACKORDER_ON' => array(
+			'en_us' => 'Product in backorder on',
+			'nl_nl' => 'Product in backorder op',
+		),
 		'LBL_NO_ORDERED_PRODS_FOUND' => array(
 			'en_us' => 'No orders found that this product is in order on',
 			'nl_nl' => 'Geen orders gevonden waarop dit product in order staat',
@@ -94,6 +98,7 @@ Class InventoryExtras {
 		$this->doCreateInvDetAfterSaveHandler();
 		$this->doUpdateLangFiles();
 		$this->doAddProductInOrderOnWidget();
+		$this->doAddProductInBackOrderOnWidget();
 		$this->doInstallcbUpdates();
 	}
 
@@ -226,6 +231,12 @@ Class InventoryExtras {
 		include_once('vtlib/Vtiger/Module.php');
 		$mod_acc = Vtiger_Module::getInstance('Products');
 		$mod_acc->addLink('DETAILVIEWWIDGET', 'LBL_PRODUCT_IN_ORDER_ON', 'module=InventoryExtras&action=InventoryExtrasAjax&file=ProductsInOrderOnWidget&return_module=$MODULE$&record=$RECORD$');		
+	}
+
+	private function doAddProductInBackOrderOnWidget() {
+		include_once('vtlib/Vtiger/Module.php');
+		$mod_acc = Vtiger_Module::getInstance('Products');
+		$mod_acc->addLink('DETAILVIEWWIDGET', 'LBL_PRODUCT_IN_BACKORDER_ON', 'module=InventoryExtras&action=InventoryExtrasAjax&file=ProductsInBackOrderOnWidget&return_module=$MODULE$&record=$RECORD$');		
 	}
 
 	private function doUpdateLangFiles() {
