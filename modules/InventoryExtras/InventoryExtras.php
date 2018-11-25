@@ -357,7 +357,11 @@ Class InventoryExtras {
 		$meta = $handler->getMeta();
 		$p->column_fields = DataTransform::sanitizeRetrieveEntityInfo($p->column_fields, $meta);
 
-		$p->save('Products');		
+		if (file_exists('modules/ExactOnline/ExactOnline.php')) {
+			$p->saveentity('Products');
+		} else {
+			$p->save('Products');
+		}	
 	}
 
 

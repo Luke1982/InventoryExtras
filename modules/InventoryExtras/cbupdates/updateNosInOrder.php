@@ -18,27 +18,33 @@ class updateNosInOrder extends cbupdaterWorker {
 
 	function applyChange() {
 		global $adb, $current_user;
-		require_once 'modules/Invoice/Invoice.php';
+		require_once 'modules/InventoryDetails/InventoryDetails.php';
 
 		if ($this->hasError()) $this->sendError();
 		if ($this->isApplied()) {
 			$this->sendMsg('Changeset '.get_class($this).' already applied!');
 		} else {
 
-			$r = $adb->pquery("SELECT related_to FROM vtiger_inventorydetails WHERE inventorydetailsid = ?", array());
+			$r = $adb->query("SELECT vtiger_inventorydetails.related_to, vtiger_inventorydetails.inventorydetailsid AS id 
+				              FROM vtiger_inventorydetails 
+			                  INNER JOIN vtiger_invoice ON 
+			                  vtiger_invoice.invoiceid = vtiger_inventorydetails.related_to 
+			                  INNER JOIN vtiger_salesorder ON 
+			                  vtiger_invoice.salesorderid = vtiger_salesorder.salesorderid 
+			                  INNER JOIN vtiger_crmentity ON 
+			                  vtiger_inventorydetails.inventorydetailsid = vtiger_crmentity.crmid 
+			                  WHERE vtiger_crmentity.deleted = 0");
 			while($row = $adb->fetch_array($r)) {
-				if (getSalesEntityType($row['related_to']) == 'Invoice') {
-					$inv = new Invoice();
-					$inv->retrieve_entity_info($row['related_to'], 'Invoice');
-					$inv->id = $row['related_to'];
-					$inv->mode = 'edit';
+				$id = new InventoryDetails();
+				$id->retrieve_entity_info($row['id'], 'InventoryDetails');
+				$id->id = $row['id'];
+				$id->mode = 'edit';
 
-					$handler = vtws_getModuleHandlerFromName('Invoice', $current_user);
-					$meta = $handler->getMeta();
-					$inv->column_fields = DataTransform::sanitizeRetrieveEntityInfo($inv->column_fields, $meta);
+				$handler = vtws_getModuleHandlerFromName('InventoryDetails', $current_user);
+				$meta = $handler->getMeta();
+				$id->column_fields = DataTransform::sanitizeRetrieveEntityInfo($id->column_fields, $meta);
 
-					$inv->save('Invoice');	
-				}
+				$id->save('InventoryDetails');	
 			}			
 
 			$this->sendMsg('Changeset '.get_class($this).' applied!');
