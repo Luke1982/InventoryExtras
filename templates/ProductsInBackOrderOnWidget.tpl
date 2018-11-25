@@ -14,10 +14,10 @@
 				<div style="font-weight: bold;" class="slds-truncate" title="{'invextras_prod_qty_in_order'|@getTranslatedString:'Products'}">{'invextras_prod_qty_in_order'|@getTranslatedString:'Products'}</div>
 			</th>
 			<th class="slds-text-title_caps" scope="col">
-				<div style="font-weight: bold;" class="slds-truncate" title="{'Subject'|@getTranslatedString:'SalesOrder'}">{'Subject'|@getTranslatedString:'SalesOrder'}</div>
+				<div style="font-weight: bold;" class="slds-truncate" title="{'Subject'|@getTranslatedString:'PurchaseOrder'}">{'Subject'|@getTranslatedString:'PurchaseOrder'}</div>
 			</th>
-			<th class="slds-text-title_caps" scope="col">
-				<div style="font-weight: bold;" class="slds-truncate" title="{'Account Name'|@getTranslatedString:'Accounts'}">{'Account Name'|@getTranslatedString:'Accounts'}</div>
+ 			<th class="slds-text-title_caps" scope="col">
+				<div style="font-weight: bold;" class="slds-truncate" title="{'Vendor Name'|@getTranslatedString:'Vendors'}">{'Vendor Name'|@getTranslatedString:'Vendors'}</div>
 			</th>
 		</tr>
 	</thead>
@@ -25,14 +25,14 @@
 		{foreach from=$lines item=line}
 		<tr class="slds-hint-parent">
 			<th data-label="{'LBL_QTY'|@getTranslatedString}" scope="row">
-				<div class="slds-truncate" title="">{$line.qty}</div>
+				<div class="slds-truncate" title="">{$line.qty_bo}</div>
 			</th>
-			<td data-label="{'Subject'|@getTranslatedString:'SalesOrder'}">
-				<div class="slds-truncate" title=""><a href="index.php?module=SalesOrder&action=DetailView&record={$line.related_to}" target="_blank">{$line.subject}</a></div>
+			<td data-label="{'Subject'|@getTranslatedString:'PurchaseOrder'}">
+				<div class="slds-truncate" title=""><a href="index.php?module=PurchaseOrder&action=DetailView&record={$line.po_id}" target="_blank">{$line.subject}</a></div>
 			</td>
-			<td data-label="{'Account Name'|@getTranslatedString:'Accounts'}">
-				<div class="slds-truncate" title="">{$line.accountname}</div>
-			</td>
+ 			<td data-label="{'Vendor Name'|@getTranslatedString:'Vendors'}">
+				<div class="slds-truncate" title="">{$line.vendorname}</div>
+			</td> 
 		</tr>
 		{/foreach}
 	</tbody>
