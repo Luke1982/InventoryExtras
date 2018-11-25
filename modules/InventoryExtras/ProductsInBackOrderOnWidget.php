@@ -14,7 +14,7 @@ global $adb;
 $r = $adb->pquery("SELECT (vtiger_inventorydetails.quantity - vtiger_inventorydetails.units_delivered_received) AS qty_bo, 
                    vtiger_purchaseorder.purchaseorderid AS po_id, 
                    vtiger_purchaseorder.subject, 
-                   vtiger_vendor.vendorname 
+                   vtiger_purchaseorder.purchaseorder_no  
 	               FROM vtiger_inventorydetails 
 	               INNER JOIN vtiger_crmentity crment_id ON 
 	               vtiger_inventorydetails.inventorydetailsid = crment_id.crmid 
@@ -22,8 +22,6 @@ $r = $adb->pquery("SELECT (vtiger_inventorydetails.quantity - vtiger_inventoryde
 	               vtiger_inventorydetails.productid = crment_prod.crmid 
 	               INNER JOIN vtiger_purchaseorder ON 
 	               vtiger_inventorydetails.related_to = vtiger_purchaseorder.purchaseorderid 
-	               INNER JOIN vtiger_vendor ON 
-	               vtiger_purchaseorder.vendorid = vtiger_vendor.vendorid 
 	               WHERE crment_id.deleted = ? 
 	               AND crment_prod.deleted = ? 
 	               AND vtiger_inventorydetails.productid = ? 

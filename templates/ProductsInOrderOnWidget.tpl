@@ -11,7 +11,7 @@
 	<thead>
 		<tr class="slds-line-height_reset">
 			<th class="slds-text-title_caps" scope="col">
-				<div style="font-weight: bold;" class="slds-truncate" title="{'invextras_prod_qty_in_order'|@getTranslatedString:'Products'}">{'invextras_prod_qty_in_order'|@getTranslatedString:'Products'}</div>
+				<div style="font-weight: bold;" class="slds-truncate" title="{'qtyindemand'|@getTranslatedString:'Products'}">{'invextras_prod_qty_in_order'|@getTranslatedString:'Products'}</div>
 			</th>
 			<th class="slds-text-title_caps" scope="col">
 				<div style="font-weight: bold;" class="slds-truncate" title="{'Subject'|@getTranslatedString:'SalesOrder'}">{'Subject'|@getTranslatedString:'SalesOrder'}</div>
