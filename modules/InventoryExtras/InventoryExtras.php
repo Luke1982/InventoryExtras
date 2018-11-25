@@ -325,8 +325,7 @@ Class InventoryExtras {
 
 	public function getQtyInOrderByProduct($productid) {
 		global $adb;
-		$qty_tot = 0;
-		$r = $adb->pquery("SELECT vtiger_inventorydetails.{$this->prefix}qty_in_order AS qty FROM vtiger_inventorydetails 
+		$r = $adb->pquery("SELECT SUM(vtiger_inventorydetails.{$this->prefix}qty_in_order) AS qty FROM vtiger_inventorydetails 
 			INNER JOIN vtiger_crmentity ON 
 			vtiger_inventorydetails.inventorydetailsid = vtiger_crmentity.crmid 
 			INNER JOIN vtiger_salesorder ON 
@@ -336,10 +335,7 @@ Class InventoryExtras {
 			AND vtiger_salesorder.{$this->prefix}so_no_stock_change != ? 
 			AND vtiger_salesorder.{$this->prefix}so_no_stock_change IS NOT NULL", array(0, $productid, 1));
 
-		while ($line = $adb->fetch_array($r)) {
-			$qty_tot += (float)$line['qty'];
-		}
-		return $qty_tot;
+		return $adb->fetch_array($r)['qty'];
 	}
 
 	public function updateProductQtyInOrder($productid, $qty_in_order) {
