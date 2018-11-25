@@ -341,7 +341,24 @@ Class InventoryExtras {
 		return $adb->fetch_array($r)['qty'];
 	}
 
-	public function updateProductQtyInOrder($productid, $qty_in_order) {
+	public function getTotalInBackOrder($productid) {
+		global $adb;
+		$r = $adb->pquery("SELECT SUM(vtiger_inventorydetails.quantity - vtiger_inventorydetails.units_delivered_received) AS qty_bo 
+			               FROM vtiger_inventorydetails 
+			               INNER JOIN vtiger_crmentity crment_id 
+			               ON vtiger_inventorydetails.inventorydetailsid = crment_id.crmid 
+			               INNER JOIN vtiger_crmentity crment_prod 
+			               ON vtiger_inventorydetails.productid = crment_prod.crmid 
+			               INNER JOIN vtiger_purchaseorder 
+			               ON vtiger_inventorydetails.related_to = vtiger_purchaseorder.purchaseorderid 
+			               WHERE crment_id.deleted = ? 
+			               AND crment_prod.deleted = ? 
+			               AND vtiger_inventorydetails.productid = ?", array(0, 0, $productid));
+
+		return $adb->fetch_array($r)['qty_bo'];
+	}
+
+	public function updateProductQtyInOrder($productid, $qty_in_order, $fieldname) {
 		global $current_user;
 		require_once 'modules/Products/Products.php';
 
@@ -350,7 +367,7 @@ Class InventoryExtras {
 		$p->id = $productid;
 		$p->mode = 'edit';
 
-		$p->column_fields[$this->prefix . 'prod_qty_in_order'] = $qty_in_order;
+		$p->column_fields[$fieldname] = $qty_in_order;
 
 		$handler = vtws_getModuleHandlerFromName('Products', $current_user);
 		$meta = $handler->getMeta();
@@ -360,7 +377,7 @@ Class InventoryExtras {
 			$p->saveentity('Products');
 		} else {
 			$p->save('Products');
-		}	
+		}
 	}
 
 

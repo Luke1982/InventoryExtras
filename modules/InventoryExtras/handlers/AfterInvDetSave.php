@@ -51,7 +51,12 @@ Class AfterInvDetSave extends VTEventHandler {
 					}
 					// Update the related product field with the summ of all invoice lines
 					$qty_in_order_tot = $invext->getQtyInOrderByProduct($invdet_data['productid']);
-					$invext->updateProductQtyInOrder($invdet_data['productid'], $qty_in_order_tot);
+					$invext->updateProductQtyInOrder($invdet_data['productid'], $qty_in_order_tot, $invext_prefix . 'prod_qty_in_order');
+				}
+
+				if ($related_type == 'PurchaseOrder') {
+					$qty_in_backord_tot = $invext->getTotalInBackOrder($invdet_data['productid']);
+					$invext->updateProductQtyInOrder($invdet_data['productid'], $qty_in_backord_tot, 'qtyindemand');
 				}
 			}
 		}
