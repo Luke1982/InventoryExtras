@@ -270,8 +270,10 @@ Class InventoryExtras {
 			SELECT vtiger_inventorydetails.inventorydetailsid AS id, 
 			vtiger_inventorydetails.quantity,
 			vtiger_inventorydetails.{$this->prefix}inv_sibling FROM 
-			vtiger_inventorydetails INNER JOIN vtiger_crmentity ON 
-			vtiger_inventorydetails.inventorydetailsid = vtiger_crmentity.crmid WHERE 
+			vtiger_inventorydetails INNER JOIN vtiger_crmentity crment_inv ON 
+			vtiger_inventorydetails.inventorydetailsid = crment_inv.crmid 
+			INNER JOIN vtiger_crmentity crment_prod ON 
+			vtiger_inventorydetails.productid = crment_prod.crmid WHERE 
 			vtiger_inventorydetails.related_to IN (
 				SELECT vtiger_invoice.salesorderid FROM vtiger_invoice INNER JOIN vtiger_crmentity ON 
 				vtiger_invoice.invoiceid = vtiger_crmentity.crmid INNER JOIN vtiger_salesorder ON 
@@ -283,7 +285,8 @@ Class InventoryExtras {
 				vtiger_salesorder.{$this->prefix}so_no_stock_change IS NULL)
 			) 
 			AND vtiger_inventorydetails.productid = ? 
-			AND vtiger_crmentity.deleted = ?", array(0, $invoiceid, 1, $productid, 0));
+			AND crment_inv.deleted = ? 
+			AND crment_prod.deleted = ?", array(0, $invoiceid, 1, $productid, 0, 0));
 
 		if ($adb->num_rows($r) > 0) {
 			return $adb->fetch_array($r);
