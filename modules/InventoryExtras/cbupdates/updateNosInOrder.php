@@ -45,7 +45,7 @@ class updateNosInOrder extends cbupdaterWorker {
 				$id->column_fields = DataTransform::sanitizeRetrieveEntityInfo($id->column_fields, $meta);
 
 				$id->save('InventoryDetails');	
-			}			
+			}		
 
 			$this->sendMsg('Changeset '.get_class($this).' applied!');
 			$this->markApplied();

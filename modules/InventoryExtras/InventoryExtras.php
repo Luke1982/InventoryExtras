@@ -279,8 +279,8 @@ Class InventoryExtras {
 				WHERE 
 				vtiger_crmentity.deleted = ? AND 
 				vtiger_invoice.invoiceid = ? AND 
-				vtiger_salesorder.{$this->prefix}so_no_stock_change != ? AND 
-				vtiger_salesorder.{$this->prefix}so_no_stock_change IS NOT NULL
+				(vtiger_salesorder.{$this->prefix}so_no_stock_change != ? OR 
+				vtiger_salesorder.{$this->prefix}so_no_stock_change IS NULL)
 			) 
 			AND vtiger_inventorydetails.productid = ? 
 			AND vtiger_crmentity.deleted = ?", array(0, $invoiceid, 1, $productid, 0));
