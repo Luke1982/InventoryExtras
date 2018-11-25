@@ -335,8 +335,8 @@ Class InventoryExtras {
 			vtiger_salesorder.salesorderid = vtiger_inventorydetails.related_to 
 			WHERE vtiger_crmentity.deleted = ? 
 			AND vtiger_inventorydetails.productid = ? 
-			AND vtiger_salesorder.{$this->prefix}so_no_stock_change != ? 
-			AND vtiger_salesorder.{$this->prefix}so_no_stock_change IS NOT NULL", array(0, $productid, 1));
+			AND (vtiger_salesorder.{$this->prefix}so_no_stock_change != ? 
+			OR vtiger_salesorder.{$this->prefix}so_no_stock_change IS NULL)", array(0, $productid, 1));
 
 		return $adb->fetch_array($r)['qty'];
 	}
