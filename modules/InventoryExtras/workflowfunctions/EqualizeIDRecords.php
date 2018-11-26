@@ -15,8 +15,30 @@
 *************************************************************************************************/
 
 function EqualizeIDRecords($entity) {
-	echo "<pre>";
-	print_r($entity);
-	echo "</pre>";
-	die();
+	global $adb, $current_user;
+	require_once 'modules/InventoryDetails/InventoryDetails.php';
+
+	list($wsid, $id) = explode('x', $entity->id);
+	$r = $adb->pquery("SELECT vtiger_inventorydetails.inventorydetailsid, 
+		                      vtiger_inventorydetails.quantity, 
+		                      vtiger_inventorydetails.units_delivered_received 
+		               FROM vtiger_inventorydetails INNER JOIN vtiger_crmentity 
+		               ON vtiger_inventorydetails.inventorydetailsid = vtiger_crmentity.crmid 
+		               WHERE vtiger_inventorydetails.related_to = ? 
+		               AND vtiger_crmentity.deleted = ?", array($id, 0));
+
+	while ($id_record = $adb->fetch_array($r)) {
+		$id = new InventoryDetails();
+		$id->retrieve_entity_info($id_record['inventorydetailsid'], 'InventoryDetails');
+		$id->id = $id_record['inventorydetailsid'];
+		$id->mode = 'edit';
+
+		$id->column_fields['units_delivered_received'] = $id->column_fields['quantity'];
+
+		$handler = vtws_getModuleHandlerFromName('InventoryDetails', $current_user);
+		$meta = $handler->getMeta();
+		$id->column_fields = DataTransform::sanitizeRetrieveEntityInfo($id->column_fields, $meta);
+
+		$id->save('InventoryDetails');		
+	}
 }
