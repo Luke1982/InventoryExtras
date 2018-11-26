@@ -358,14 +358,18 @@ Class InventoryExtras {
 	public function updateInvDetRec($invdet_id, $invdet_qty, $sibl_id, $sibl_qty, $saveentity = false) {
 		global $current_user;
 		require_once 'modules/InventoryDetails/InventoryDetails.php';
+		require_once 'include/fields/CurrencyField.php';
 
 		$id = new InventoryDetails();
 		$id->retrieve_entity_info($invdet_id, 'InventoryDetails');
 		$id->id = $invdet_id;
 		$id->mode = 'edit';
 
+		$invdet_qty = CurrencyField::convertToDBFormat($invdet_qty);
+		$sibl_qty = CurrencyField::convertToDBFormat($sibl_qty);
+
 		$id->column_fields[$this->prefix . 'inv_sibling'] = $sibl_id;
-		$id->column_fields[$this->prefix . 'qty_in_order'] = (float)$invdet_qty - (float)$sibl_qty;
+		$id->column_fields[$this->prefix . 'qty_in_order'] = $invdet_qty - $sibl_qty;
 		$id->column_fields['units_delivered_received'] = $sibl_qty;
 
 		$handler = vtws_getModuleHandlerFromName('InventoryDetails', $current_user);
@@ -421,6 +425,9 @@ Class InventoryExtras {
 	public function updateProductQtyInOrder($productid, $qty_in_order, $fieldname) {
 		global $current_user;
 		require_once 'modules/Products/Products.php';
+		require_once 'include/fields/CurrencyField.php';
+
+		$qty_in_order = CurrencyField::convertToDBFormat($qty_in_order);
 
 		$p = new Products();
 		$p->retrieve_entity_info($productid, 'Products');
@@ -431,7 +438,7 @@ Class InventoryExtras {
 
 		if ($fieldname == $this->prefix . 'prod_qty_in_order') {
 			// Recalculate available stock
-			$p->column_fields[$this->prefix . 'prod_stock_avail'] = (float)$p->column_fields['qtyinstock'] - (float)$qty_in_order;
+			$p->column_fields[$this->prefix . 'prod_stock_avail'] = $p->column_fields['qtyinstock'] - $qty_in_order;
 		}
 
 		$handler = vtws_getModuleHandlerFromName('Products', $current_user);
