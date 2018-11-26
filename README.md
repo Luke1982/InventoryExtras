@@ -10,7 +10,7 @@ This will create a block in the InventoryDetails module called 'SalesOrder infor
 ### Quantity in order in products
 There will be a new field in products called quantity in order. That field will represent the sum of all inventorydetails records that have this product ID *and* are related to a salesorder
 
-### Available stock in Products (TO-DO!!)
+### Available stock in Products
 Products will receive a new field that represents the quantity you have available in reality. This no. will simply be the stock you have minus the quantity in order there is for this product (field above)
 
 ### Pending orders widget in Products
