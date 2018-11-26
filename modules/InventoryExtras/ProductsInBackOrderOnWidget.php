@@ -10,7 +10,7 @@
 require_once('Smarty_setup.php');
 $smarty = new vtigerCRM_Smarty();
 
-global $adb;
+global $adb, $current_user;
 $r = $adb->pquery("SELECT (vtiger_inventorydetails.quantity - vtiger_inventorydetails.units_delivered_received) AS qty_bo, 
                    vtiger_purchaseorder.purchaseorderid AS po_id, 
                    vtiger_purchaseorder.subject, 
@@ -33,4 +33,7 @@ while ($line = $adb->fetch_array($r)) {
 }
 
 $smarty->assign('lines', $lines);
+$smarty->assign('user_decnum', $current_user->column_fields['no_of_currency_decimals']);
+$smarty->assign('user_grpsep', $current_user->column_fields['currency_grouping_separator']);
+$smarty->assign('user_cursep', $current_user->column_fields['currency_currency_separator']);
 $smarty->display('modules/InventoryExtras/ProductsInBackOrderOnWidget.tpl');

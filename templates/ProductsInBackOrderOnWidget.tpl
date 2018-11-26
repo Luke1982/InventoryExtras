@@ -25,7 +25,7 @@
 		{foreach from=$lines item=line}
 		<tr class="slds-hint-parent">
 			<th data-label="{'LBL_QTY'|@getTranslatedString}" scope="row">
-				<div style="white-space: normal;" class="slds-truncate" title="">{$line.qty_bo}</div>
+				<div style="white-space: normal;" class="slds-truncate" title="">{$line.qty_bo|number_format:$user_decnum:$user_cursep:$user_grpsep}</div>
 			</th>
 			<td data-label="{'Subject'|@getTranslatedString:'PurchaseOrder'}">
 				<div style="white-space: normal;" class="slds-truncate" title=""><a href="index.php?module=PurchaseOrder&action=DetailView&record={$line.po_id}" target="_blank">{$line.subject}</a></div>
