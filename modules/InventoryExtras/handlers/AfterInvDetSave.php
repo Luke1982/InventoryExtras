@@ -48,6 +48,9 @@ Class AfterInvDetSave extends VTEventHandler {
 					if ($invdet_data[$invext_prefix . 'inv_sibling'] == '0' || $invdet_data[$invext_prefix . 'inv_sibling'] == '') {
 						// There is no sibling set yet by an invoice
 						$invext->updateInvDetRec($invdet_id, $invdet_data['quantity'], 0, 0, true); // true to 'saveentity' and avoid infinite loop
+					} else {
+						// Update the line when there WAS an invoice line related
+						$invext->updateInvDetRec($invdet_id, $invdet_data['quantity'], $invdet_data[$invext_prefix . 'inv_sibling'], $invdet_data['units_delivered_received'], true); // true to 'saveentity' and avoid infinite loop
 					}
 					// Update the related product field with the summ of all invoice lines
 					$qty_in_order_tot = $invext->getQtyInOrderByProduct($invdet_data['productid']);
