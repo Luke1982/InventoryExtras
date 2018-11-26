@@ -39,6 +39,6 @@ function EqualizeIDRecords($entity) {
 		$meta = $handler->getMeta();
 		$id->column_fields = DataTransform::sanitizeRetrieveEntityInfo($id->column_fields, $meta);
 
-		$id->save('InventoryDetails');		
+		$id->save('InventoryDetails');
 	}
 }
