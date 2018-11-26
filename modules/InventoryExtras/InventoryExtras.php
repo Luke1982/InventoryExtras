@@ -106,6 +106,7 @@ Class InventoryExtras {
 		$this->doCreateInvDetAfterSaveHandler();
 		$this->doUpdateLangFiles();
 		$this->doAddProductInOrderOnWidget();
+		$this->doCreateWorkflowFunction();
 		$this->doAddProductInBackOrderOnWidget();
 		$this->doInstallcbUpdates();
 	}
