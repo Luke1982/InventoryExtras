@@ -51,9 +51,17 @@ Class InventoryExtras {
 			'en_us' => 'Qty',
 			'nl_nl' => 'Aantal',
 		),
+		'invextras_prod_stock_avail' => array(
+			'en_us' => 'Available stock',
+			'nl_nl' => 'Beschikbare voorraad',
+		),
 		'LBL_HELP_PROD_QTY_IN_ORDER' => array(
 			'en_us' => 'The sum of all \'qty\'s in order\' for all lines related to this product.',
 			'nl_nl' => 'Het totaal van alle regels waarbij dit product nog \'in order\' staat',
+		),
+		'LBL_HELP_PROD_STOCK_AVAIL' => array(
+			'en_us' => 'Stock realistically available, difference between stock and qty in order',
+			'nl_nl' => 'Realistisch beschikbare voorraad, verschil tussen voorraad en aantal in order',
 		),
 		'LBL_PRODUCT_IN_ORDER_ON' => array(
 			'en_us' => 'Product in order on',
@@ -117,7 +125,7 @@ Class InventoryExtras {
 		$fld->name  = $this->prefix . 'qty_in_order';
 		$fld->table = 'vtiger_inventorydetails';
 		$fld->column = $this->prefix . 'qty_in_order';
-		$fld->columntype = 'INT(11)';
+		$fld->columntype = 'DECIMAL(28,6)';
 		$fld->helpinfo = 'LBL_HELP_ID_QTY_IN_ORDER';
 		$fld->uitype = 7;
 		$fld->typeofdata = 'N~O';
@@ -154,10 +162,23 @@ Class InventoryExtras {
 		$fld->name  = $this->prefix . 'prod_qty_in_order';
 		$fld->table = 'vtiger_products';
 		$fld->column = $this->prefix . 'prod_qty_in_order';
-		$fld->columntype = 'INT(11)';
+		$fld->columntype = 'DECIMAL(28,6)';
 		$fld->helpinfo = 'LBL_HELP_PROD_QTY_IN_ORDER';
 		$fld->uitype = 7;
 		$fld->typeofdata = 'N~O';
+		$fld->displaytype = 1;
+		$fld->masseditable = 0;
+
+		$blk->addField($fld);
+
+		$fld = new Vtiger_Field();
+		$fld->name  = $this->prefix . 'prod_stock_avail';
+		$fld->table = 'vtiger_products';
+		$fld->column = $this->prefix . 'prod_stock_avail';
+		$fld->columntype = 'DECIMAL(28,6)';
+		$fld->helpinfo = 'LBL_HELP_PROD_STOCK_AVAIL';
+		$fld->uitype = 7;
+		$fld->typeofdata = 'NN~O';
 		$fld->displaytype = 1;
 		$fld->masseditable = 0;
 
@@ -211,6 +232,7 @@ Class InventoryExtras {
 		// Also remove the columns from InventoryDetails table
 		$adb->query("ALTER TABLE vtiger_inventorydetails DROP COLUMN " . $this->prefix . "inv_sibling, DROP COLUMN " . $this->prefix . "qty_in_order");
 		$adb->query("ALTER TABLE vtiger_products DROP COLUMN " . $this->prefix . "prod_qty_in_order");
+		$adb->query("ALTER TABLE vtiger_products DROP COLUMN " . $this->prefix . "prod_stock_avail");
 		$adb->query("ALTER TABLE vtiger_salesorder DROP COLUMN " . $this->prefix . "so_no_stock_change");
 
 		$moduleInstance = Vtiger_Module::getInstance('Products');
