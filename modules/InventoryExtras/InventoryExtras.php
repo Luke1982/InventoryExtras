@@ -229,6 +229,8 @@ Class InventoryExtras {
 		$fld = Vtiger_Field::getInstance($this->prefix . 'so_no_stock_change', $mod);
 		if ($fld !== false) $fld->delete();
 
+		$this->doRemoveWorkflowFunction();
+
 		// Also remove the columns from InventoryDetails table
 		$adb->query("ALTER TABLE vtiger_inventorydetails DROP COLUMN " . $this->prefix . "inv_sibling, DROP COLUMN " . $this->prefix . "qty_in_order");
 		$adb->query("ALTER TABLE vtiger_products DROP COLUMN " . $this->prefix . "prod_qty_in_order");
@@ -265,6 +267,28 @@ Class InventoryExtras {
 		$this->updateLangFor('SalesOrder', $this->i18n_so);
 		$this->updateLangFor('Products', $this->i18n_prod);
 		$this->updateLangFor('InventoryDetails', $this->i18n_invdet);
+	}
+
+	private function doCreateWorkflowFunction() {
+		require_once 'include/utils/utils.php';
+		include_once('vtlib/Vtiger/Module.php');
+		require 'modules/com_vtiger_workflow/VTEntityMethodManager.inc';
+		global $adb;
+		$emm = new VTEntityMethodManager($adb);
+		$emm->addEntityMethod("PurchaseOrder", "Equalize related InventoryDetails records", "modules/InventoryExtras/workflowfunctions/EqualizeIDRecords.php", "EqualizeIDRecords");
+		$emm->addEntityMethod("SalesOrder", "Equalize related InventoryDetails records", "modules/InventoryExtras/workflowfunctions/EqualizeIDRecords.php", "EqualizeIDRecords");
+		$emm->addEntityMethod("Invoice", "Equalize related InventoryDetails records", "modules/InventoryExtras/workflowfunctions/EqualizeIDRecords.php", "EqualizeIDRecords");
+	}
+
+	private function doRemoveWorkflowFunction() {
+		require_once 'include/utils/utils.php';
+		include_once('vtlib/Vtiger/Module.php');
+		require 'modules/com_vtiger_workflow/VTEntityMethodManager.inc';
+		global $adb;
+		$emm = new VTEntityMethodManager($adb);
+		$emm->removeEntityMethod("PurchaseOrder", "Equalize related InventoryDetails records");
+		$emm->removeEntityMethod("SalesOrder", "Equalize related InventoryDetails records");
+		$emm->removeEntityMethod("Invoice", "Equalize related InventoryDetails records");
 	}
 
 	private function updateLangFor($modulename, $i18n) {
