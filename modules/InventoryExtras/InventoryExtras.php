@@ -425,9 +425,6 @@ Class InventoryExtras {
 	public function updateProductQtyInOrder($productid, $qty_in_order, $fieldname) {
 		global $current_user;
 		require_once 'modules/Products/Products.php';
-		require_once 'include/fields/CurrencyField.php';
-
-		$qty_in_order = CurrencyField::convertToDBFormat($qty_in_order);
 
 		$p = new Products();
 		$p->retrieve_entity_info($productid, 'Products');
@@ -438,7 +435,7 @@ Class InventoryExtras {
 
 		if ($fieldname == $this->prefix . 'prod_qty_in_order') {
 			// Recalculate available stock
-			$p->column_fields[$this->prefix . 'prod_stock_avail'] = $p->column_fields['qtyinstock'] - $qty_in_order;
+			$p->column_fields[$this->prefix . 'prod_stock_avail'] = (float)$p->column_fields['qtyinstock'] - (float)$qty_in_order;
 		}
 
 		$handler = vtws_getModuleHandlerFromName('Products', $current_user);
