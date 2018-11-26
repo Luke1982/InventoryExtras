@@ -52,7 +52,7 @@ Class AfterInvDetSave extends VTEventHandler {
 						// Update the line when there WAS an invoice line related
 						$invext->updateInvDetRec($invdet_id, $invdet_data['quantity'], $invdet_data[$invext_prefix . 'inv_sibling'], $invdet_data['units_delivered_received'], true); // true to 'saveentity' and avoid infinite loop
 					}
-					// Update the related product field with the summ of all invoice lines
+					// Update the related product field with the sum of all salesorder lines (qty in demand)
 					$qty_in_order_tot = $invext->getQtyInOrderByProduct($invdet_data['productid']);
 					$invext->updateProductQtyInOrder($invdet_data['productid'], $qty_in_order_tot, $invext_prefix . 'prod_qty_in_order');
 				}
