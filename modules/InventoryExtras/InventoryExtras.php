@@ -224,6 +224,8 @@ Class InventoryExtras {
 		$mod = Vtiger_Module::getInstance('Products');
 		$fld = Vtiger_Field::getInstance($this->prefix . 'prod_qty_in_order', $mod);
 		if ($fld !== false) $fld->delete();
+		$fld = Vtiger_Field::getInstance($this->prefix . 'prod_stock_avail', $mod);
+		if ($fld !== false) $fld->delete();
 
 		$mod = Vtiger_Module::getInstance('SalesOrder');
 		$fld = Vtiger_Field::getInstance($this->prefix . 'so_no_stock_change', $mod);
