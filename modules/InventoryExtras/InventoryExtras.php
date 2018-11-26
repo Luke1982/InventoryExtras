@@ -402,6 +402,11 @@ Class InventoryExtras {
 
 		$p->column_fields[$fieldname] = $qty_in_order;
 
+		if ($fieldname == $this->prefix . 'prod_qty_in_order') {
+			// Recalculate available stock
+			$p->column_fields[$this->prefix . 'prod_stock_avail'] = (float)$p->column_fields['qtyinstock'] - (float)$qty_in_order;
+		}
+
 		$handler = vtws_getModuleHandlerFromName('Products', $current_user);
 		$meta = $handler->getMeta();
 		$p->column_fields = DataTransform::sanitizeRetrieveEntityInfo($p->column_fields, $meta);
