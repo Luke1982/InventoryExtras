@@ -22,7 +22,7 @@ A second widget will show you all the PurchaseOrders that this product is still 
 ### Update the Qty in demand field
 When an inventorydetails line is saved, the module will look for all lines that have a similar product ID and are also related to a PurchaseOrder. It will then take **all** the quantity's from those purchaseorders, deduct the units delivered/received and update the field in the product with the result. So basically, the result will be the quantity you have in demand out at your suppliers minus the ones you have already received. This does **not** look at the status of the PurchaseOrder. In stead, we will do something explained below:
 
-### Update all lines when a PurchaseOrder is marked as received (TO-DO!!)
+### Update all lines when a PurchaseOrder is marked as received
 It will install a workflow that allows you to create a custom workflow task. This task will alter all the inventorydetails records related to this record (you could tie in to any module that has inventorydetails). The alteration will be that all the units delivered/received will be set equal to the quantity of the line. That way you could makr a single purchaseorder as 'Goods Received' and have all the lines be set equal to their quantity's in the units delivered/received field, which will fire related events, like create inventorymutations or the aftersave events on this module.
 
 ## Known limitations
