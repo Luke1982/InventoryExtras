@@ -320,6 +320,24 @@ Class InventoryExtras {
 		}
 	}
 
+	private function createInventoryMutation($column_fields) {
+		require_once 'modules/InventoryMutations/InventoryMutations.php';
+		$im = new InventoryMutations();
+		$im->mode = 'create';
+
+		$im->column_fields['units_delrec_before'] = $column_fields['units_delrec_before'];
+		$im->column_fields['units_delrec_mutated'] = $column_fields['units_delrec_mutated'];
+		$im->column_fields['units_delrec_after'] = $column_fields['units_delrec_after'];
+		$im->column_fields['invmut_inventorydetails_id'] = $column_fields['invmut_inventorydetails_id'];
+		$im->column_fields['invmut_source_id'] = $column_fields['invmut_source_id'];
+		$im->column_fields['invmut_product_id'] = $column_fields['invmut_product_id'];
+
+		$handler = vtws_getModuleHandlerFromName('InventoryMutations', $current_user);
+		$meta = $handler->getMeta();
+		$im->column_fields = DataTransform::sanitizeRetrieveEntityInfo($im->column_fields, $meta);
+		$im->save('InventoryMutations');		
+	}
+
 	public function getPrefix() {
 		return $this->prefix;
 	}
@@ -359,7 +377,7 @@ Class InventoryExtras {
 	 * Method: update an inventorydetails record
 	 *
 	 * @param : record ID of the inventorydetails record you want to update
-	 * @param : quantity you want to set on the record to update
+	 * @param : quantity you want the units delivered deducted from
 	 * @param : The inventorydetails record ID that you want to set as this records' sibling
 	 * @param : The units delivered
 	 * @param : (bool) Use 'save' mothod or 'saveentity' (avoid other aftersave events and workflows)
@@ -367,11 +385,25 @@ Class InventoryExtras {
 	public function updateInvDetRec($invdet_id, $invdet_qty, $sibl_id, $units_del, $saveentity = false) {
 		global $current_user;
 		require_once 'modules/InventoryDetails/InventoryDetails.php';
+		require_once 'include/utils/VtlibUtils.php';
 
 		$id = new InventoryDetails();
 		$id->retrieve_entity_info($invdet_id, 'InventoryDetails');
 		$id->id = $invdet_id;
 		$id->mode = 'edit';
+
+		if (vtlib_isModuleActive('InventoryMutations') && $saveentity) {
+			require_once 'modules/InventoryMutations/InventoryMutations.php';
+			// create inventorymutations record since saveentity doesn't call the aftersave
+			$this->createInventoryMutation(array(
+				'units_delrec_before' => $id->column_fields['units_delivered_received'],
+				'units_delrec_mutated' => $units_del,
+				'units_delrec_after' => $id->column_fields['units_delivered_received'] - $units_del,
+				'invmut_inventorydetails_id' => $id->id,
+				'invmut_source_id' => $id->column_fields['related_to'],
+				'invmut_product_id' => $id->column_fields['productid'],
+			));
+		}
 
 		$id->column_fields[$this->prefix . 'so_sibling'] = $sibl_id;
 		$id->column_fields[$this->prefix . 'qty_in_order'] = $invdet_qty - $units_del;
