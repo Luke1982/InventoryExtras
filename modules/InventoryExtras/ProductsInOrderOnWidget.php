@@ -21,8 +21,8 @@ $r = $adb->pquery("SELECT vtiger_inventorydetails.invextras_qty_in_order AS qty,
 						  vtiger_inventorydetails.related_to = vtiger_salesorder.salesorderid 
 						  INNER JOIN vtiger_account ON 
 						  vtiger_inventorydetails.account_id = vtiger_account.accountid 
-						  WHERE vtiger_inventorydetails.productid = ? AND 
-						  CAST(vtiger_inventorydetails.invextras_qty_in_order AS UNSIGNED) > ?", array($_REQUEST['record'], 0));
+						  WHERE vtiger_inventorydetails.productid = ? 
+						  AND CAST(vtiger_inventorydetails.invextras_qty_in_order AS INT) != ?", array($_REQUEST['record'], 0));
 
 $lines = array();
 while ($line = $adb->fetch_array($r)) {
