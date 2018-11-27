@@ -367,15 +367,11 @@ Class InventoryExtras {
 	public function updateInvDetRec($invdet_id, $invdet_qty, $sibl_id, $units_del, $saveentity = false) {
 		global $current_user;
 		require_once 'modules/InventoryDetails/InventoryDetails.php';
-		require_once 'include/fields/CurrencyField.php';
 
 		$id = new InventoryDetails();
 		$id->retrieve_entity_info($invdet_id, 'InventoryDetails');
 		$id->id = $invdet_id;
 		$id->mode = 'edit';
-
-		$invdet_qty = CurrencyField::convertToDBFormat($invdet_qty);
-		$units_del = CurrencyField::convertToDBFormat($units_del);
 
 		$id->column_fields[$this->prefix . 'so_sibling'] = $sibl_id;
 		$id->column_fields[$this->prefix . 'qty_in_order'] = $invdet_qty - $units_del;
