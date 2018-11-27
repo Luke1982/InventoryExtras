@@ -28,21 +28,21 @@ Class InventoryExtras {
 			'en_us' => 'Quantity still in order',
 			'nl_nl' => 'Aantal nog in order',
 		),
-		'invextras_inv_sibling' => array(
-			'en_us' => 'Invoice sibling line',
-			'nl_nl' => 'Gekoppelde factuurregel',
+		'invextras_so_sibling' => array(
+			'en_us' => 'Salesorder sibling line',
+			'nl_nl' => 'Gekoppelde orderregel',
 		),
 		'LBL_INVDET_SO_INFO' => array(
-			'en_us' => 'SalesOrder info (when this line is related to a SalesOrder)',
-			'nl_nl' => 'Verkooporder informatie (wanneer deze regel aan een order is gekoppeld)',
+			'en_us' => 'SalesOrder info (when related)',
+			'nl_nl' => 'Verkooporder informatie (wanneer gekoppeld)',
 		),
 		'LBL_HELP_ID_QTY_IN_ORDER' => array(
 			'en_us' => 'No. \'still in order\' that this line represents',
 			'nl_nl' => 'Aantal \'nog in order\' voor deze regel',
 		),
-		'LBL_HELP_ID_INV_SIBLING' => array(
-			'en_us' => 'This is the line on an invoice that is this line\'s sibling, or \'opposed\'',
-			'nl_nl' => 'De regel op een aan deze order gerelateerde factuur die tegenover deze regel staat',
+		'LBL_HELP_ID_SO_SIBLING' => array(
+			'en_us' => 'The opposed salesorder line',
+			'nl_nl' => 'De gekoppelde verkooporder regel',
 		),
 	);
 	private $i18n_prod = array(
@@ -138,11 +138,11 @@ Class InventoryExtras {
 		$blk->addField($fld);
 
 		$fld = new Vtiger_Field();
-		$fld->name  = $this->prefix . 'inv_sibling';
+		$fld->name  = $this->prefix . 'so_sibling';
 		$fld->table = 'vtiger_inventorydetails';
-		$fld->column = $this->prefix . 'inv_sibling';
+		$fld->column = $this->prefix . 'so_sibling';
 		$fld->columntype = 'INT(11)';
-		$fld->helpinfo = 'LBL_HELP_ID_INV_SIBLING';
+		$fld->helpinfo = 'LBL_HELP_ID_SO_SIBLING';
 		$fld->uitype = 10;
 		$fld->typeofdata = 'I~O';
 		$fld->displaytype = 1;
@@ -236,7 +236,7 @@ Class InventoryExtras {
 		$this->doRemoveWorkflowFunction();
 
 		// Also remove the columns from InventoryDetails table
-		$adb->query("ALTER TABLE vtiger_inventorydetails DROP COLUMN " . $this->prefix . "inv_sibling, DROP COLUMN " . $this->prefix . "qty_in_order");
+		$adb->query("ALTER TABLE vtiger_inventorydetails DROP COLUMN " . $this->prefix . "so_sibling, DROP COLUMN " . $this->prefix . "qty_in_order");
 		$adb->query("ALTER TABLE vtiger_products DROP COLUMN " . $this->prefix . "prod_qty_in_order");
 		$adb->query("ALTER TABLE vtiger_products DROP COLUMN " . $this->prefix . "prod_stock_avail");
 		$adb->query("ALTER TABLE vtiger_salesorder DROP COLUMN " . $this->prefix . "so_no_stock_change");
@@ -329,8 +329,7 @@ Class InventoryExtras {
 
 		$r = $adb->pquery("
 			SELECT vtiger_inventorydetails.inventorydetailsid AS id, 
-			vtiger_inventorydetails.quantity,
-			vtiger_inventorydetails.{$this->prefix}inv_sibling FROM 
+			vtiger_inventorydetails.quantity FROM 
 			vtiger_inventorydetails INNER JOIN vtiger_crmentity crment_inv ON 
 			vtiger_inventorydetails.inventorydetailsid = crment_inv.crmid 
 			INNER JOIN vtiger_crmentity crment_prod ON 
@@ -356,7 +355,16 @@ Class InventoryExtras {
 		}
 	}
 
-	public function updateInvDetRec($invdet_id, $invdet_qty, $sibl_id, $sibl_qty, $saveentity = false) {
+	/*
+	 * Method: update an inventorydetails record
+	 *
+	 * @param : record ID of the inventorydetails record you want to update
+	 * @param : quantity you want to set on the record to update
+	 * @param : The inventorydetails record ID that you want to set as this records' sibling
+	 * @param : The units delivered
+	 * @param : (bool) Use 'save' mothod or 'saveentity' (avoid other aftersave events and workflows)
+	 */
+	public function updateInvDetRec($invdet_id, $invdet_qty, $sibl_id, $units_del, $saveentity = false) {
 		global $current_user;
 		require_once 'modules/InventoryDetails/InventoryDetails.php';
 		require_once 'include/fields/CurrencyField.php';
@@ -367,11 +375,11 @@ Class InventoryExtras {
 		$id->mode = 'edit';
 
 		$invdet_qty = CurrencyField::convertToDBFormat($invdet_qty);
-		$sibl_qty = CurrencyField::convertToDBFormat($sibl_qty);
+		$units_del = CurrencyField::convertToDBFormat($units_del);
 
-		$id->column_fields[$this->prefix . 'inv_sibling'] = $sibl_id;
-		$id->column_fields[$this->prefix . 'qty_in_order'] = $invdet_qty - $sibl_qty;
-		$id->column_fields['units_delivered_received'] = $sibl_qty;
+		$id->column_fields[$this->prefix . 'so_sibling'] = $sibl_id;
+		$id->column_fields[$this->prefix . 'qty_in_order'] = $invdet_qty - $units_del;
+		$id->column_fields['units_delivered_received'] = $units_del;
 
 		$handler = vtws_getModuleHandlerFromName('InventoryDetails', $current_user);
 		$meta = $handler->getMeta();
@@ -389,6 +397,16 @@ Class InventoryExtras {
 		global $adb;
 		$r = $adb->pquery("SELECT quantity FROM vtiger_inventorydetails WHERE inventorydetailsid = ? LIMIT 1", array($id));
 		return $adb->fetch_array($r)['quantity'];
+	}
+
+	public function getInvoiceQtysFromSoLine($so_line_id) {
+		global $adb;
+		$r = $adb->pquery("SELECT SUM(vtiger_inventorydetails.quantity) AS qty FROM vtiger_inventorydetails 
+			               INNER JOIN vtiger_crmentity ON 
+			               vtiger_inventorydetails.inventorydetailsid = vtiger_crmentity.crmid 
+			               WHERE vtiger_inventorydetails.{$this->prefix}so_sibling = ? 
+			               AND vtiger_crmentity.deleted = ?", array($so_line_id, 0));
+		return $adb->num_rows($r) > 0 ? $adb->fetch_array($r)['qty'] : 0;
 	}
 
 	public function getQtyInOrderByProduct($productid) {

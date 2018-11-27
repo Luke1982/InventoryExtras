@@ -32,30 +32,41 @@ Class AfterInvDetSave extends VTEventHandler {
 			if ($related_item == 'Products') {
 				$sibl = $invext->getSiblingFromInvoice($invdet_data['related_to'], $invdet_data['productid']);
 
-				if ($related_type == 'Invoice' && !!$sibl && ($sibl[$invext_prefix . 'inv_sibling'] == '' || $sibl[$invext_prefix . 'inv_sibling'] == '0')) {
-					// This line is related to an invoice and a sibling was found. The sibling does not have
-					// a related inventorydetails line yet
-					$invext->updateInvDetRec($sibl['id'], $sibl['quantity'], $invdet_id, $invdet_data['quantity']);			
-				} else if ($related_type == 'Invoice' && !!$sibl && ($sibl[$invext_prefix . 'inv_sibling'] != '' || $sibl[$invext_prefix . 'inv_sibling'] != '0')) {
-					// Sibling was found, but it already has a related line
-					if ($sibl[$invext_prefix . 'inv_sibling'] == $invdet_id) {
-						// Already related to this line, update to be sure
-						$invext->updateInvDetRec($sibl['id'], $sibl['quantity'], $invdet_id, $invdet_data['quantity']);
+				if (!!$sibl) {
+					if ($related_type == 'Invoice') {
+						if ($invdet_data[$invext_prefix . 'so_sibling'] == '0' || $invdet_data[$invext_prefix . 'so_sibling'] == '') {
+							// This is an invoice line and no related salesorder line has been set yet
+							$adb->pquery("INSERT INTO vtiger_inventorydetails ({$invext_prefix}so_sibling) VALUES (?)", array((int)$sibl['id']));
+						}
+						$qty_delivered = $invext->getInvoiceQtysFromSoLine($sibl['id']);
+						$invext->updateInvDetRec($sibl['id'], $sibl['quantity'], 0, $qty_delivered);
 					}
 				}
 
-				if ($related_type == 'SalesOrder') {
-					if ($invdet_data[$invext_prefix . 'inv_sibling'] == '0' || $invdet_data[$invext_prefix . 'inv_sibling'] == '') {
-						// There is no sibling set yet by an invoice
-						$invext->updateInvDetRec($invdet_id, $invdet_data['quantity'], 0, 0, true); // true to 'saveentity' and avoid infinite loop
-					} else {
-						// Update the line when there WAS an invoice line related
-						$invext->updateInvDetRec($invdet_id, $invdet_data['quantity'], $invdet_data[$invext_prefix . 'inv_sibling'], $invdet_data['units_delivered_received'], true); // true to 'saveentity' and avoid infinite loop
-					}
-					// Update the related product field with the sum of all salesorder lines (qty in demand)
-					$qty_in_order_tot = $invext->getQtyInOrderByProduct($invdet_data['productid']);
-					$invext->updateProductQtyInOrder($invdet_data['productid'], $qty_in_order_tot, $invext_prefix . 'prod_qty_in_order');
-				}
+				// if ($related_type == 'Invoice' && !!$sibl && ($sibl[$invext_prefix . 'inv_sibling'] == '' || $sibl[$invext_prefix . 'inv_sibling'] == '0')) {
+				// 	// This line is related to an invoice and a sibling was found. The sibling does not have
+				// 	// a related inventorydetails line yet
+				// 	$invext->updateInvDetRec($sibl['id'], $sibl['quantity'], $invdet_id, $invdet_data['quantity']);			
+				// } else if ($related_type == 'Invoice' && !!$sibl && ($sibl[$invext_prefix . 'inv_sibling'] != '' || $sibl[$invext_prefix . 'inv_sibling'] != '0')) {
+				// 	// Sibling was found, but it already has a related line
+				// 	if ($sibl[$invext_prefix . 'inv_sibling'] == $invdet_id) {
+				// 		// Already related to this line, update to be sure
+				// 		$invext->updateInvDetRec($sibl['id'], $sibl['quantity'], $invdet_id, $invdet_data['quantity']);
+				// 	}
+				// }
+
+				// if ($related_type == 'SalesOrder') {
+				// 	if ($invdet_data[$invext_prefix . 'inv_sibling'] == '0' || $invdet_data[$invext_prefix . 'inv_sibling'] == '') {
+				// 		// There is no sibling set yet by an invoice
+				// 		$invext->updateInvDetRec($invdet_id, $invdet_data['quantity'], 0, 0, true); // true to 'saveentity' and avoid infinite loop
+				// 	} else {
+				// 		// Update the line when there WAS an invoice line related
+				// 		$invext->updateInvDetRec($invdet_id, $invdet_data['quantity'], $invdet_data[$invext_prefix . 'inv_sibling'], $invdet_data['units_delivered_received'], true); // true to 'saveentity' and avoid infinite loop
+				// 	}
+				// 	// Update the related product field with the sum of all salesorder lines (qty in demand)
+				// 	$qty_in_order_tot = $invext->getQtyInOrderByProduct($invdet_data['productid']);
+				// 	$invext->updateProductQtyInOrder($invdet_data['productid'], $qty_in_order_tot, $invext_prefix . 'prod_qty_in_order');
+				// }
 
 				if ($related_type == 'PurchaseOrder') {
 					$qty_in_backord_tot = $invext->getTotalInBackOrder($invdet_data['productid']);
