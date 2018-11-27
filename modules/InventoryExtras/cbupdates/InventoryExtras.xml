@@ -7,4 +7,11 @@
 	<classname>updateNosInOrder</classname>
 	<systemupdate>false</systemupdate>
 </changeSet>
+<changeSet>
+	<author>MajorLabel</author>
+	<description>Installed with InventoryExtras. Updates all quantity's in demand in Products</description>
+	<filename>modules/InventoryExtras/cbupdates/updateQtysInDemand.php</filename>
+	<classname>updateQtysInDemand</classname>
+	<systemupdate>false</systemupdate>
+</changeSet>
 </updatesChangeLog>

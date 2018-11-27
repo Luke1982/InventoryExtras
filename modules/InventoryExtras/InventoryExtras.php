@@ -96,6 +96,7 @@ Class InventoryExtras {
 			// TODO Handle actions before this module is updated.
 		} else if($event_type == 'module.postupdate') {
 			// TODO Handle actions after this module is updated.
+			$this->doInstallcbUpdates();
 		}
 	}
 

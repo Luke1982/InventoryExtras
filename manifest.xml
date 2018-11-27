@@ -4,7 +4,7 @@
 	<name>InventoryExtras</name>
 	<label>Extends some inventory functionality (https://github.com/Luke1982/InventoryExtras)</label>
 	<parent>Tools</parent>
-	<version>0.1</version>
+	<version>0.2</version>
 	<dependencies>
 		<vtiger_version>7.0.0</vtiger_version>
 		<vtiger_max_version>7.*</vtiger_max_version>
