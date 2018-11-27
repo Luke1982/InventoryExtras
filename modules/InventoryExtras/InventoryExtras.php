@@ -398,10 +398,13 @@ Class InventoryExtras {
 	public function getInvoiceQtysFromSoLine($so_line_id) {
 		global $adb;
 		$r = $adb->pquery("SELECT SUM(vtiger_inventorydetails.quantity) AS qty FROM vtiger_inventorydetails 
-			               INNER JOIN vtiger_crmentity ON 
-			               vtiger_inventorydetails.related_to = vtiger_crmentity.crmid 
+			               INNER JOIN vtiger_crmentity crment_inv ON 
+			               vtiger_inventorydetails.related_to = crment_inv.crmid 
+			               INNER JOIN vtiger_crmentity crment_invdet ON 
+			               vtiger_inventorydetails.inventorydetailsid = crment_invdet.crmid 
 			               WHERE vtiger_inventorydetails.{$this->prefix}so_sibling = ? 
-			               AND vtiger_crmentity.deleted = ?", array($so_line_id, 0));
+			               AND crment_inv.deleted = ? 
+			               AND crment_invdet.deleted = ?", array($so_line_id, 0, 0));
 		return $adb->num_rows($r) > 0 ? $adb->fetch_array($r)['qty'] : 0;
 	}
 
