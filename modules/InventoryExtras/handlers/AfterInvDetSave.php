@@ -36,7 +36,8 @@ Class AfterInvDetSave extends VTEventHandler {
 					if ($related_type == 'Invoice') {
 						if ($invdet_data[$invext_prefix . 'so_sibling'] == '0' || $invdet_data[$invext_prefix . 'so_sibling'] == '') {
 							// This is an invoice line and no related salesorder line has been set yet
-							$adb->pquery("INSERT INTO vtiger_inventorydetails ({$invext_prefix}so_sibling) VALUES (?)", array((int)$sibl['id']));
+							$adb->pquery("UPDATE vtiger_inventorydetails SET {$invext_prefix}so_sibling = ? 
+								          WHERE inventorydetailsid = ?", array((int)$sibl['id'], $invdet_id));
 						}
 						$qty_delivered = $invext->getInvoiceQtysFromSoLine($sibl['id']);
 						$invext->updateInvDetRec($sibl['id'], $sibl['quantity'], 0, $qty_delivered);
