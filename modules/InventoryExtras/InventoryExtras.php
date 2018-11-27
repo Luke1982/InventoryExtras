@@ -465,9 +465,12 @@ Class InventoryExtras {
 			               ON vtiger_inventorydetails.productid = crment_prod.crmid 
 			               INNER JOIN vtiger_purchaseorder 
 			               ON vtiger_inventorydetails.related_to = vtiger_purchaseorder.purchaseorderid 
+			               INNER JOIN vtiger_crmentity crment_po 
+			               ON vtiger_inventorydetails.related_to = crment_po.crmid 
 			               WHERE crment_id.deleted = ? 
 			               AND crment_prod.deleted = ? 
-			               AND vtiger_inventorydetails.productid = ?", array(0, 0, $productid));
+			               AND crment_po.deleted = ? 
+			               AND vtiger_inventorydetails.productid = ?", array(0, 0, 0, $productid));
 
 		return $adb->fetch_array($r)['qty_bo'];
 	}
