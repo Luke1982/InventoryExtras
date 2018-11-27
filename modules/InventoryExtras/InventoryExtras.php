@@ -126,7 +126,7 @@ Class InventoryExtras {
 		$fld->name  = $this->prefix . 'qty_in_order';
 		$fld->table = 'vtiger_inventorydetails';
 		$fld->column = $this->prefix . 'qty_in_order';
-		$fld->columntype = 'DECIMAL(28,6)';
+		$fld->columntype = 'DECIMAL(28,3)';
 		$fld->helpinfo = 'LBL_HELP_ID_QTY_IN_ORDER';
 		$fld->uitype = 7;
 		$fld->typeofdata = 'N~O';
@@ -163,7 +163,7 @@ Class InventoryExtras {
 		$fld->name  = $this->prefix . 'prod_qty_in_order';
 		$fld->table = 'vtiger_products';
 		$fld->column = $this->prefix . 'prod_qty_in_order';
-		$fld->columntype = 'DECIMAL(28,6)';
+		$fld->columntype = 'DECIMAL(28,3)';
 		$fld->helpinfo = 'LBL_HELP_PROD_QTY_IN_ORDER';
 		$fld->uitype = 7;
 		$fld->typeofdata = 'N~O';
@@ -176,7 +176,7 @@ Class InventoryExtras {
 		$fld->name  = $this->prefix . 'prod_stock_avail';
 		$fld->table = 'vtiger_products';
 		$fld->column = $this->prefix . 'prod_stock_avail';
-		$fld->columntype = 'DECIMAL(28,6)';
+		$fld->columntype = 'DECIMAL(28,3)';
 		$fld->helpinfo = 'LBL_HELP_PROD_STOCK_AVAIL';
 		$fld->uitype = 7;
 		$fld->typeofdata = 'NN~O';
