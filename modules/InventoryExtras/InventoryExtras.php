@@ -399,7 +399,7 @@ Class InventoryExtras {
 		global $adb;
 		$r = $adb->pquery("SELECT SUM(vtiger_inventorydetails.quantity) AS qty FROM vtiger_inventorydetails 
 			               INNER JOIN vtiger_crmentity ON 
-			               vtiger_inventorydetails.inventorydetailsid = vtiger_crmentity.crmid 
+			               vtiger_inventorydetails.related_to = vtiger_crmentity.crmid 
 			               WHERE vtiger_inventorydetails.{$this->prefix}so_sibling = ? 
 			               AND vtiger_crmentity.deleted = ?", array($so_line_id, 0));
 		return $adb->num_rows($r) > 0 ? $adb->fetch_array($r)['qty'] : 0;
