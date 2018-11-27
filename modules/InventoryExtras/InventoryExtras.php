@@ -48,8 +48,8 @@ Class InventoryExtras {
 	private $i18n_prod = array(
 		'langs' => array('en_us', 'nl_nl'),
 		'invextras_prod_qty_in_order' => array(
-			'en_us' => 'Qty',
-			'nl_nl' => 'Aantal',
+			'en_us' => 'Qty in order',
+			'nl_nl' => 'Aantal in order',
 		),
 		'invextras_prod_stock_avail' => array(
 			'en_us' => 'Available stock',
