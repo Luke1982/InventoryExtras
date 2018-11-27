@@ -47,10 +47,10 @@ class updateQtysInDemand extends cbupdaterWorker {
 				               ON vtiger_inventorydetails.inventorydetailsid = crment_id.crmid 
 				               INNER JOIN vtiger_crmentity crment_prod 
 				               ON vtiger_inventorydetails.productid = crment_prod.crmid 
-				               WHERE vtiger_purchaseorder.postatus = ? 
+				               WHERE (vtiger_purchaseorder.postatus = ? OR vtiger_purchaseorder.postatus = ?) 
 				               AND crment_po.deleted = ? 
 				               AND crment_id.deleted = ?
-				               AND crment_prod.deleted = ?", array('Received Shipment', 0, 0, 0));
+				               AND crment_prod.deleted = ?", array('Received Shipment', 'Delivered', 0, 0, 0));
 
 			while ($id_record = $adb->fetch_array($r)) {
 				$id = new InventoryDetails();
