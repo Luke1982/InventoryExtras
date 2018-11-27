@@ -19,6 +19,7 @@ class updateQtysInDemand extends cbupdaterWorker {
 	function applyChange() {
 		global $adb, $current_user;
 		require_once 'modules/InventoryExtras/InventoryExtras.php';
+		require_once 'modules/InventoryDetails/InventoryDetails.php';
 
 		if ($this->hasError()) $this->sendError();
 		if ($this->isApplied()) {
@@ -34,6 +35,36 @@ class updateQtysInDemand extends cbupdaterWorker {
 			while ($prod = $adb->fetch_array($r)) {
 				$qty_in_backord_tot = $ie->getTotalInBackOrder($prod['productid']);
 				$ie->updateProductQtyInOrder($prod['productid'], $qty_in_backord_tot, 'qtyindemand');
+			}
+
+			// Update all Purchase
+			$r = $adb->pquery("SELECT vtiger_inventorydetails.inventorydetailsid FROM 
+				               vtiger_inventorydetails INNER JOIN vtiger_purchaseorder 
+				               ON vtiger_inventorydetails.related_to = vtiger_purchaseorder.purchaseorderid 
+				               INNER JOIN vtiger_crmentity crment_po 
+				               ON vtiger_inventorydetails.related_to = crment_po.crmid 
+				               INNER JOIN vtiger_crmentity crment_id 
+				               ON vtiger_inventorydetails.inventorydetailsid = crment_id.crmid 
+				               INNER JOIN vtiger_crmentity crment_prod 
+				               ON vtiger_inventorydetails.productid = crment_prod.crmid 
+				               WHERE vtiger_purchaseorder.postatus = ? 
+				               AND crment_po.deleted = ? 
+				               AND crment_id.deleted = ?
+				               AND crment_prod.deleted = ?", array('Received Shipment', 0, 0, 0));
+
+			while ($id_record = $adb->fetch_array($r)) {
+				$id = new InventoryDetails();
+				$id->retrieve_entity_info($id_record['inventorydetailsid'], 'InventoryDetails');
+				$id->id = $id_record['inventorydetailsid'];
+				$id->mode = 'edit';
+
+				$id->column_fields['units_delivered_received'] = $id->column_fields['quantity'];
+
+				$handler = vtws_getModuleHandlerFromName('InventoryDetails', $current_user);
+				$meta = $handler->getMeta();
+				$id->column_fields = DataTransform::sanitizeRetrieveEntityInfo($id->column_fields, $meta);
+
+				$id->save('InventoryDetails');
 			}
 
 			$this->sendMsg('Changeset '.get_class($this).' applied!');
