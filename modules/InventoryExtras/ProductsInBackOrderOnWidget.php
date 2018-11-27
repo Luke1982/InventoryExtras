@@ -20,12 +20,15 @@ $r = $adb->pquery("SELECT (vtiger_inventorydetails.quantity - vtiger_inventoryde
 	               vtiger_inventorydetails.inventorydetailsid = crment_id.crmid 
 	               INNER JOIN vtiger_crmentity crment_prod ON 
 	               vtiger_inventorydetails.productid = crment_prod.crmid 
+	               INNER JOIN vtiger_crmentity crment_po 
+	               ON vtiger_inventorydetails.related_to = crment_po.crmid 
 	               INNER JOIN vtiger_purchaseorder ON 
 	               vtiger_inventorydetails.related_to = vtiger_purchaseorder.purchaseorderid 
 	               WHERE crment_id.deleted = ? 
 	               AND crment_prod.deleted = ? 
+	               AND crment_po.deleted = ? 
 	               AND vtiger_inventorydetails.productid = ? 
-	               AND (vtiger_inventorydetails.quantity - vtiger_inventorydetails.units_delivered_received) > ?", array(0, 0, $_REQUEST['record'], 0));
+	               AND (vtiger_inventorydetails.quantity - vtiger_inventorydetails.units_delivered_received) > ?", array(0, 0, 0, $_REQUEST['record'], 0));
 
 $lines = array();
 while ($line = $adb->fetch_array($r)) {
