@@ -57,6 +57,33 @@ Class AfterInvDetSave extends VTEventHandler {
 					$invext->updateProductQtyInOrder($invdet_data['productid'], $qty_in_backord_tot, 'qtyindemand');
 				}
 			}
+		} else if ($moduleName == 'SalesOrder') {
+			global $adb, $current_user;
+			require_once 'modules/InventoryDetails/InventoryDetails.php';
+
+			$so_id = $entityData->getId();
+			$so_data = $entityData->getData();	
+
+			$r = $adb->pquery("SELECT vtiger_inventorydetails.inventorydetailsid AS id FROM vtiger_inventorydetails 
+				               INNER JOIN vtiger_crmentity ON 
+				               vtiger_inventorydetails.inventorydetailsid = vtiger_crmentity.crmid 
+				               WHERE vtiger_inventorydetails.related_to = ? 
+				               AND vtiger_crmentity.deleted = ?", array($so_id, 0));
+
+			while ($invdet = $adb->fetch_array($r)) {
+				$invdet_id = $invdet['id'];
+
+				$id = new InventoryDetails();
+				$id->retrieve_entity_info($invdet_id, 'InventoryDetails');
+				$id->id = $invdet_id;
+				$id->mode = 'edit';
+
+				$handler = vtws_getModuleHandlerFromName('InventoryDetails', $current_user);
+				$meta = $handler->getMeta();
+				$id->column_fields = DataTransform::sanitizeRetrieveEntityInfo($id->column_fields, $meta);
+
+				$id->save('InventoryDetails');				
+			}
 		}
 	}
 }
