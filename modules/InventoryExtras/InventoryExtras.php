@@ -243,7 +243,10 @@ Class InventoryExtras {
 		$adb->query("ALTER TABLE vtiger_salesorder DROP COLUMN " . $this->prefix . "so_no_stock_change");
 
 		$moduleInstance = Vtiger_Module::getInstance('Products');
-		$moduleInstance->deleteLink('DETAILVIEWWIDGET', 'LBL_PRODUCT_IN_ORDER_ON', 'module=InventoryExtras&action=InventoryExtrasAjax&file=ProductsInOrderOnWidget&return_module=$MODULE$&record=$RECORD$');		
+		$moduleInstance->deleteLink('DETAILVIEWWIDGET', 'LBL_PRODUCT_IN_ORDER_ON', 'module=InventoryExtras&action=InventoryExtrasAjax&file=ProductsInOrderOnWidget&return_module=$MODULE$&record=$RECORD$');
+		$moduleInstance->deleteLink('DETAILVIEWWIDGET', 'LBL_PRODUCT_IN_BACKORDER_ON', 'module=InventoryExtras&action=InventoryExtrasAjax&file=ProductsInBackOrderOnWidget&return_module=$MODULE$&record=$RECORD$');
+		$moduleInstance = Vtiger_Module::getInstance('InventoryExtras');
+		$moduleInstance->deleteLink('HEADERSCRIPT', 'InventoryExtrasHeaderScript', 'modules/InventoryExtras/InventoryExtras.js');
 	}
 
 	private function doCreateInvDetAfterSaveHandler() {
