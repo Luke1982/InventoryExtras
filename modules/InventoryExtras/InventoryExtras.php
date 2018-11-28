@@ -431,13 +431,17 @@ Class InventoryExtras {
 	public function getInvoiceQtysFromSoLine($so_line_id) {
 		global $adb;
 		$r = $adb->pquery("SELECT SUM(vtiger_inventorydetails.quantity) AS qty FROM vtiger_inventorydetails 
-			               INNER JOIN vtiger_crmentity crment_inv ON 
-			               vtiger_inventorydetails.related_to = crment_inv.crmid 
-			               INNER JOIN vtiger_crmentity crment_invdet ON 
-			               vtiger_inventorydetails.inventorydetailsid = crment_invdet.crmid 
-			               WHERE vtiger_inventorydetails.{$this->prefix}so_sibling = ? 
-			               AND crment_inv.deleted = ? 
-			               AND crment_invdet.deleted = ?", array($so_line_id, 0, 0));
+                           INNER JOIN vtiger_crmentity crment_inv ON 
+                           vtiger_inventorydetails.related_to = crment_inv.crmid 
+                           INNER JOIN vtiger_crmentity crment_invdet ON 
+                           vtiger_inventorydetails.inventorydetailsid = crment_invdet.crmid 
+                           WHERE vtiger_inventorydetails.{$this->prefix}so_sibling = ? 
+                           AND (SELECT vtiger_salesorder.invextras_so_no_stock_change FROM 
+                                vtiger_salesorder INNER JOIN vtiger_inventorydetails 
+                                ON vtiger_salesorder.salesorderid = vtiger_inventorydetails.related_to 
+                                WHERE vtiger_inventorydetails.inventorydetailsid = ? LIMIT 1) != ?			               
+                           AND crment_inv.deleted = ? 
+                           AND crment_invdet.deleted = ?", array($so_line_id, $so_line_id, 0, 0, 1));
 		return $adb->num_rows($r) > 0 ? $adb->fetch_array($r)['qty'] : 0;
 	}
 
