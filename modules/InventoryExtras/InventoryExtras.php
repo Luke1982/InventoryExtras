@@ -341,6 +341,25 @@ Class InventoryExtras {
 		}	
 	}
 
+	private function getSoNoStockChange($invdet_id) {
+		global $adb;
+		$r = $adb->pquery("SELECT vtiger_salesorder.{$this->prefix}so_no_stock_change AS flag 
+			               FROM vtiger_salesorder INNER JOIN vtiger_inventorydetails ON 
+                           vtiger_salesorder.salesorderid = vtiger_inventorydetails.related_to 
+			               WHERE vtiger_inventorydetails.inventorydetailsid = ?", array($invdet_id));
+
+		if ($adb->num_rows($r) > 0) {
+			$flag = $adb->fetch_array($r)['flag'];
+			if ($flag == 0 || $flag == '0') {
+				return false;
+			} else {
+				return true;
+			}
+		} else {
+			return false;
+		}
+	}	
+
 	public function getPrefix() {
 		return $this->prefix;
 	}
@@ -409,8 +428,11 @@ Class InventoryExtras {
 		}
 
 		$id->column_fields[$this->prefix . 'so_sibling'] = $sibl_id;
-		$id->column_fields[$this->prefix . 'qty_in_order'] = $invdet_qty - $units_del;
-		$id->column_fields['units_delivered_received'] = $units_del;
+		
+		if (!$this->getSoNoStockChange($invdet_id)) {
+			$id->column_fields[$this->prefix . 'qty_in_order'] = $invdet_qty - $units_del;
+			$id->column_fields['units_delivered_received'] = $units_del;
+		}
 
 		$handler = vtws_getModuleHandlerFromName('InventoryDetails', $current_user);
 		$meta = $handler->getMeta();
@@ -421,7 +443,6 @@ Class InventoryExtras {
 		} else {
 			$id->save('InventoryDetails');
 		}
-				
 	}
 
 	public function getInvDetQtyById($id) {
