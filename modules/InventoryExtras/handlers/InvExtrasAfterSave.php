@@ -57,7 +57,7 @@ Class InvExtrasAfterSave extends VTEventHandler {
 					$invext->updateProductQtyInOrder($invdet_data['productid'], $qty_in_backord_tot, 'qtyindemand');
 				}
 			}
-		} else if ($moduleName == 'SalesOrder') {
+		} else if ($moduleName == 'SalesOrder' && $_REQUEST['action'] == 'SalesOrderAjax' && $_REQUEST['file'] == 'DetailViewAjax') {
 			global $adb, $current_user;
 			require_once 'modules/InventoryDetails/InventoryDetails.php';
 
