@@ -26,6 +26,8 @@ class updateNosInOrder extends cbupdaterWorker {
 			$this->sendMsg('Changeset '.get_class($this).' already applied!');
 		} else {
 
+			$adb->query("UPDATE vtiger_inventorydetails INNER JOIN vtiger_salesorder ON vtiger_inventorydetails.related_to = vtiger_salesorder.salesorderid SET vtiger_inventorydetails.invextras_qty_in_order = (vtiger_inventorydetails.units_delivered_received - vtiger_inventorydetails.quantity)");
+
 			$r = $adb->query("SELECT vtiger_inventorydetails.related_to, vtiger_inventorydetails.inventorydetailsid AS id 
 				              FROM vtiger_inventorydetails 
 			                  INNER JOIN vtiger_invoice ON 
