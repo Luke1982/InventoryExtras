@@ -167,7 +167,7 @@ Class InventoryExtras {
 		$fld->columntype = 'DECIMAL(28,3)';
 		$fld->helpinfo = 'LBL_HELP_PROD_QTY_IN_ORDER';
 		$fld->uitype = 7;
-		$fld->typeofdata = 'N~O';
+		$fld->typeofdata = 'NN~O';
 		$fld->displaytype = 1;
 		$fld->masseditable = 0;
 
