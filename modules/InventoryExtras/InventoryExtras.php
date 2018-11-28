@@ -321,22 +321,24 @@ Class InventoryExtras {
 	}
 
 	private function createInventoryMutation($column_fields) {
-		global $current_user;
-		require_once 'modules/InventoryMutations/InventoryMutations.php';
-		$im = new InventoryMutations();
-		$im->mode = 'create';
+		if ($column_fields['units_delrec_mutated'] != 0) {
+			global $current_user;
+			require_once 'modules/InventoryMutations/InventoryMutations.php';
+			$im = new InventoryMutations();
+			$im->mode = 'create';
 
-		$im->column_fields['units_delrec_before'] = $column_fields['units_delrec_before'];
-		$im->column_fields['units_delrec_mutated'] = $column_fields['units_delrec_mutated'];
-		$im->column_fields['units_delrec_after'] = $column_fields['units_delrec_after'];
-		$im->column_fields['invmut_inventorydetails_id'] = $column_fields['invmut_inventorydetails_id'];
-		$im->column_fields['invmut_source_id'] = $column_fields['invmut_source_id'];
-		$im->column_fields['invmut_product_id'] = $column_fields['invmut_product_id'];
+			$im->column_fields['units_delrec_before'] = $column_fields['units_delrec_before'];
+			$im->column_fields['units_delrec_mutated'] = $column_fields['units_delrec_mutated'];
+			$im->column_fields['units_delrec_after'] = $column_fields['units_delrec_after'];
+			$im->column_fields['invmut_inventorydetails_id'] = $column_fields['invmut_inventorydetails_id'];
+			$im->column_fields['invmut_source_id'] = $column_fields['invmut_source_id'];
+			$im->column_fields['invmut_product_id'] = $column_fields['invmut_product_id'];
 
-		$handler = vtws_getModuleHandlerFromName('InventoryMutations', $current_user);
-		$meta = $handler->getMeta();
-		$im->column_fields = DataTransform::sanitizeRetrieveEntityInfo($im->column_fields, $meta);
-		$im->save('InventoryMutations');		
+			$handler = vtws_getModuleHandlerFromName('InventoryMutations', $current_user);
+			$meta = $handler->getMeta();
+			$im->column_fields = DataTransform::sanitizeRetrieveEntityInfo($im->column_fields, $meta);
+			$im->save('InventoryMutations');
+		}	
 	}
 
 	public function getPrefix() {
