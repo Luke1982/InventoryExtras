@@ -45,6 +45,10 @@ Class AfterInvDetSave extends VTEventHandler {
 					if ($invext->getInvoiceQtysFromSoLine($invdet_id) == 0) {
 						// There were no invoice lines related to this salesorder line
 						$invext->updateInvDetRec($invdet_id, $invdet_data['quantity'], 0, 0, true); // last param = saveentity (avoid infinite loop)
+					} else {
+						// There were invoice lines found, update to be sure
+						$qty_delivered = $invext->getInvoiceQtysFromSoLine($invdet_id);
+						$invext->updateInvDetRec($invdet_id, $invdet_data['quantity'], 0, $qty_delivered, true); // last param = saveentity (avoid infinite loop)	
 					}
 					$qty_in_order_tot = $invext->getQtyInOrderByProduct($invdet_data['productid']);
 					$invext->updateProductQtyInOrder($invdet_data['productid'], $qty_in_order_tot, $invext_prefix . 'prod_qty_in_order');

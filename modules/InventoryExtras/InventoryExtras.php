@@ -428,10 +428,12 @@ Class InventoryExtras {
 		}
 
 		$id->column_fields[$this->prefix . 'so_sibling'] = $sibl_id;
-		
+		$id->column_fields['units_delivered_received'] = $units_del;
+
 		if (!$this->getSoNoStockChange($invdet_id)) {
 			$id->column_fields[$this->prefix . 'qty_in_order'] = $invdet_qty - $units_del;
-			$id->column_fields['units_delivered_received'] = $units_del;
+		} else {
+			$id->column_fields[$this->prefix . 'qty_in_order'] = 0;
 		}
 
 		$handler = vtws_getModuleHandlerFromName('InventoryDetails', $current_user);
