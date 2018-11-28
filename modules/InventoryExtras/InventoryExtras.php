@@ -494,6 +494,7 @@ Class InventoryExtras {
 
 		$handler = vtws_getModuleHandlerFromName('Products', $current_user);
 		$meta = $handler->getMeta();
+		unset($_REQUEST['ajxaction']);
 		$p->column_fields = DataTransform::sanitizeRetrieveEntityInfo($p->column_fields, $meta);
 
 		if (file_exists('modules/ExactOnline/ExactOnline.php')) {
