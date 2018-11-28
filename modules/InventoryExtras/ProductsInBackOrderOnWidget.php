@@ -28,6 +28,7 @@ $r = $adb->pquery("SELECT (vtiger_inventorydetails.quantity - vtiger_inventoryde
 	               AND crment_prod.deleted = ? 
 	               AND crment_po.deleted = ? 
 	               AND vtiger_inventorydetails.productid = ? 
+	               AND vtiger_purchaseorder.postatus != 'Cancelled' 
 	               AND (vtiger_inventorydetails.quantity - vtiger_inventorydetails.units_delivered_received) > ?", array(0, 0, 0, $_REQUEST['record'], 0));
 
 $lines = array();

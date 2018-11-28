@@ -470,6 +470,7 @@ Class InventoryExtras {
 			               WHERE crment_id.deleted = ? 
 			               AND crment_prod.deleted = ? 
 			               AND crment_po.deleted = ? 
+			               AND vtiger_purchaseorder.postatus != 'Cancelled' 
 			               AND vtiger_inventorydetails.productid = ?", array(0, 0, 0, $productid));
 
 		return $adb->fetch_array($r)['qty_bo'];
