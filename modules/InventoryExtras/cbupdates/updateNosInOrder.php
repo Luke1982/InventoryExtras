@@ -28,12 +28,18 @@ class updateNosInOrder extends cbupdaterWorker {
 			$r = $adb->query("SELECT vtiger_inventorydetails.related_to, vtiger_inventorydetails.inventorydetailsid AS id 
 				              FROM vtiger_inventorydetails 
 			                  INNER JOIN vtiger_invoice ON 
-			                  vtiger_invoice.invoiceid = vtiger_inventorydetails.related_to 
+			                  vtiger_inventorydetails.related_to = vtiger_invoice.invoiceid 
 			                  INNER JOIN vtiger_salesorder ON 
 			                  vtiger_invoice.salesorderid = vtiger_salesorder.salesorderid 
 			                  INNER JOIN vtiger_crmentity ON 
 			                  vtiger_inventorydetails.inventorydetailsid = vtiger_crmentity.crmid 
-			                  WHERE vtiger_crmentity.deleted = 0");
+			                  INNER JOIN vtiger_crmentity crment_inv ON 
+			                  vtiger_inventorydetails.related_to = crment_inv.crmid 
+			                  INNER JOIN vtiger_crmentity crment_so ON 
+			                  vtiger_salesorder.salesorderid = crment_so.crmid 
+			                  WHERE vtiger_crmentity.deleted = 0 
+			                  AND crment_inv.deleted = 0 
+			                  AND crment_so.deleted = 0");
 			while($row = $adb->fetch_array($r)) {
 				$id = new InventoryDetails();
 				$id->retrieve_entity_info($row['id'], 'InventoryDetails');
