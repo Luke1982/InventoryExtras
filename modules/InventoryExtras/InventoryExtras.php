@@ -441,7 +441,7 @@ Class InventoryExtras {
                                 ON vtiger_salesorder.salesorderid = vtiger_inventorydetails.related_to 
                                 WHERE vtiger_inventorydetails.inventorydetailsid = ? LIMIT 1) != ? 
                            AND crment_inv.deleted = ? 
-                           AND crment_invdet.deleted = ?", array($so_line_id, $so_line_id, 0, 0, 1));
+                           AND crment_invdet.deleted = ?", array($so_line_id, $so_line_id, 1, 0, 0));
 		return $adb->num_rows($r) > 0 ? $adb->fetch_array($r)['qty'] : 0;
 	}
 
