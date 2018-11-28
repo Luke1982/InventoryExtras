@@ -17,6 +17,7 @@
 class updateNosInOrder extends cbupdaterWorker {
 
 	function applyChange() {
+		ini_set('memory_limit', '2048M');
 		global $adb, $current_user;
 		require_once 'modules/InventoryDetails/InventoryDetails.php';
 
