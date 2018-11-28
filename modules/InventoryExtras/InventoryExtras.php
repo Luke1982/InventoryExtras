@@ -477,10 +477,13 @@ Class InventoryExtras {
 			vtiger_inventorydetails.inventorydetailsid = vtiger_crmentity.crmid 
 			INNER JOIN vtiger_salesorder ON 
 			vtiger_salesorder.salesorderid = vtiger_inventorydetails.related_to 
+			INNER JOIN vtiger_crmentity crment_so ON 
+			vtiger_salesorder.salesorderid = crment_so.crmid 
 			WHERE vtiger_crmentity.deleted = ? 
+			AND crment_so.deleted = ? 
 			AND vtiger_inventorydetails.productid = ? 
 			AND (vtiger_salesorder.{$this->prefix}so_no_stock_change != ? 
-			OR vtiger_salesorder.{$this->prefix}so_no_stock_change IS NULL)", array(0, $productid, 1));
+			OR vtiger_salesorder.{$this->prefix}so_no_stock_change IS NULL)", array(0, 0, $productid, 1));
 
 		return $adb->fetch_array($r)['qty'];
 	}
