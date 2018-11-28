@@ -321,6 +321,7 @@ Class InventoryExtras {
 	}
 
 	private function createInventoryMutation($column_fields) {
+		global $current_user;
 		require_once 'modules/InventoryMutations/InventoryMutations.php';
 		$im = new InventoryMutations();
 		$im->mode = 'create';
