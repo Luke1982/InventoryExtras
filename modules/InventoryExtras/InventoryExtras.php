@@ -439,7 +439,7 @@ Class InventoryExtras {
                            AND (SELECT vtiger_salesorder.invextras_so_no_stock_change FROM 
                                 vtiger_salesorder INNER JOIN vtiger_inventorydetails 
                                 ON vtiger_salesorder.salesorderid = vtiger_inventorydetails.related_to 
-                                WHERE vtiger_inventorydetails.inventorydetailsid = ? LIMIT 1) != ?			               
+                                WHERE vtiger_inventorydetails.inventorydetailsid = ? LIMIT 1) != ? 
                            AND crment_inv.deleted = ? 
                            AND crment_invdet.deleted = ?", array($so_line_id, $so_line_id, 0, 0, 1));
 		return $adb->num_rows($r) > 0 ? $adb->fetch_array($r)['qty'] : 0;
