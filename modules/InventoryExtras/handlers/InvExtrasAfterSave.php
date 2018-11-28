@@ -13,7 +13,7 @@
 * permissions and limitations under the License. You may obtain a copy of the License
 * at <http://corebos.org/documentation/doku.php?id=en:devel:vpl11>
 *************************************************************************************************/
-Class AfterInvDetSave extends VTEventHandler {
+Class InvExtrasAfterSave extends VTEventHandler {
 	public function handleEvent($eventName, $entityData){
 		global $current_user, $adb;
 
