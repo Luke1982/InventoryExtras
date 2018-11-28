@@ -15,7 +15,7 @@ Class InventoryExtras {
 		'langs' => array('en_us', 'nl_nl'),
 		'invextras_so_no_stock_change' => array(
 			'en_us' => 'Don\'t affect the stock',
-			'nl_nl' => 'Geen invloed op voorraad',
+			'nl_nl' => 'Voorraad NIET bijwerken',
 		),
 		'LBL_HELP_SO_LEAVE_STOCK_ALONE' => array(
 			'en_us' => 'This will avoid lines on related invoices from being linked to lines on this salesorder. It will also avoid the lines on this salesorder to affect the total no. in order on the product.',
