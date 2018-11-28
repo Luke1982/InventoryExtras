@@ -109,6 +109,7 @@ Class InventoryExtras {
 		$this->doAddProductInOrderOnWidget();
 		$this->doCreateWorkflowFunction();
 		$this->doAddProductInBackOrderOnWidget();
+		$this->doAddInventoryExtrasHeaderScript();
 		$this->doInstallcbUpdates();
 	}
 
@@ -265,6 +266,12 @@ Class InventoryExtras {
 		include_once('vtlib/Vtiger/Module.php');
 		$mod_acc = Vtiger_Module::getInstance('Products');
 		$mod_acc->addLink('DETAILVIEWWIDGET', 'LBL_PRODUCT_IN_BACKORDER_ON', 'module=InventoryExtras&action=InventoryExtrasAjax&file=ProductsInBackOrderOnWidget&return_module=$MODULE$&record=$RECORD$');		
+	}
+
+	private function doAddInventoryExtrasHeaderScript() {
+		include_once('vtlib/Vtiger/Module.php');
+		$mod_acc = Vtiger_Module::getInstance('InventoryExtras');
+		$mod_acc->addLink('HEADERSCRIPT', 'InventoryExtrasHeaderScript', 'modules/InventoryExtras/InventoryExtras.js');		
 	}
 
 	private function doUpdateLangFiles() {
