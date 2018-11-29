@@ -15,7 +15,8 @@ Products will receive a new field that represents the quantity you have availabl
 
 ### Order recommendation field in Products
 A field will be installed in Products that recommends you how many items you should order. The formula is:
-- (Quantity in order -/- Reorder lever) -/- (Qty in Stock -/- Qty in Demand)
+- (Quantity in order -/- Reorder level) -/- (Qty in Stock -/- Qty in Demand)
+
 So this basically tells you how many you should order to meet your current no. in order for this product, taking into account how many you already have, how many you want in stock (at minimum) and how many you have already ordered at your suppliers.
 
 ### Maximum stock field in Products
