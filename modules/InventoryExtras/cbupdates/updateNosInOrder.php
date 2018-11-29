@@ -35,7 +35,7 @@ class updateNosInOrder extends cbupdaterWorker {
 
 			$r = $adb->query("SELECT vtiger_inventorydetails.related_to, 
 				                     vtiger_inventorydetails.inventorydetailsid AS id, 
-				                     vtiger_inventorydetails.productid AS id, 
+				                     vtiger_inventorydetails.productid, 
 				                     vtiger_inventorydetails.{$invext_prefix}so_sibling AS sibl_id 
 				              FROM vtiger_inventorydetails 
 			                  INNER JOIN vtiger_invoice ON 
