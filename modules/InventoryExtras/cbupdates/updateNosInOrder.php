@@ -30,9 +30,11 @@ class updateNosInOrder extends cbupdaterWorker {
 			$invext = new InventoryExtras();
 			$invext_prefix = $invext->getPrefix();			
 
+			// Set some defaults in the database first
 			$adb->query("UPDATE vtiger_salesorder SET {$invext_prefix}so_no_stock_change = 0");
 			$adb->query("UPDATE vtiger_inventorydetails INNER JOIN vtiger_salesorder ON vtiger_inventorydetails.related_to = vtiger_salesorder.salesorderid SET vtiger_inventorydetails.invextras_qty_in_order = (vtiger_inventorydetails.quantity - vtiger_inventorydetails.units_delivered_received)");
 
+			// Get the invoice lines
 			$r = $adb->query("SELECT vtiger_inventorydetails.related_to, 
 				                     vtiger_inventorydetails.inventorydetailsid AS id, 
 				                     vtiger_inventorydetails.productid, 
@@ -53,7 +55,6 @@ class updateNosInOrder extends cbupdaterWorker {
 			                  AND crment_so.deleted = 0");
 
 			while($row = $adb->fetch_array($r)) {
-
 				$sibl = $invext->getSiblingFromInvoice($row['related_to'], $row['productid']);
 				if (!!$sibl) {
 					if ($row['sibl_id'] == '0' || $row['sibl_id'] == '' || $row['sibl_id'] == 0) {
@@ -61,6 +62,7 @@ class updateNosInOrder extends cbupdaterWorker {
 						$adb->pquery("UPDATE vtiger_inventorydetails SET {$invext_prefix}so_sibling = ? 
 							          WHERE inventorydetailsid = ?", array((int)$sibl['id'], $row['id']));
 					}
+					// Fire save on the related salesorder line to update all the data
 					$qty_delivered = $invext->getInvoiceQtysFromSoLine($sibl['id']);
 					$invext->updateInvDetRec($sibl['id'], $sibl['quantity'], 0, $qty_delivered);
 				}	
