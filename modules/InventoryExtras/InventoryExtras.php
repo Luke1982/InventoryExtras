@@ -59,9 +59,9 @@ Class InventoryExtras {
 			'en_us' => 'Quantity to order',
 			'nl_nl' => 'Aantal te bestellen',
 		),
-		'invextras_prod_min_stock' => array(
-			'en_us' => 'Minimum stock',
-			'nl_nl' => 'Minimale voorraad',
+		'invextras_prod_max_stock' => array(
+			'en_us' => 'Maximum stock',
+			'nl_nl' => 'Maximale voorraad',
 		),
 		'LBL_HELP_PROD_QTY_IN_ORDER' => array(
 			'en_us' => 'The sum of all \'qty\'s in order\' for all lines related to this product.',
@@ -71,9 +71,9 @@ Class InventoryExtras {
 			'en_us' => 'The quantity you should order to meet all orders in respect to the pending qty\'s in order',
 			'nl_nl' => 'Het aantal dat besteld moet worden om aan alle orders te voldoen',
 		),
-		'LBL_HELP_PROD_MIN_STOCK' => array(
-			'en_us' => 'The minimum amount you want to have in stock for this product',
-			'nl_nl' => 'Het minimale aantal dat u voor dit product in voorraad wilt hebben',
+		'LBL_HELP_PROD_MAX_STOCK' => array(
+			'en_us' => 'The maximum amount you want to have in stock for this product',
+			'nl_nl' => 'Het maximale aantal dat u voor dit product in voorraad wilt hebben',
 		),
 		'LBL_HELP_PROD_STOCK_AVAIL' => array(
 			'en_us' => 'Stock realistically available, difference between stock and qty in order',
@@ -217,11 +217,11 @@ Class InventoryExtras {
 		$blk->addField($fld);
 
 		$fld = new Vtiger_Field();
-		$fld->name  = $this->prefix . 'prod_min_stock';
+		$fld->name  = $this->prefix . 'prod_max_stock';
 		$fld->table = 'vtiger_products';
-		$fld->column = $this->prefix . 'prod_min_stock';
+		$fld->column = $this->prefix . 'prod_max_stock';
 		$fld->columntype = 'DECIMAL(28,3)';
-		$fld->helpinfo = 'LBL_HELP_PROD_MIN_STOCK';
+		$fld->helpinfo = 'LBL_HELP_PROD_MAX_STOCK';
 		$fld->uitype = 7;
 		$fld->typeofdata = 'NN~O';
 		$fld->displaytype = 1;
@@ -273,7 +273,7 @@ Class InventoryExtras {
 		if ($fld !== false) $fld->delete();
 		$fld = Vtiger_Field::getInstance($this->prefix . 'prod_qty_to_order', $mod);
 		if ($fld !== false) $fld->delete();
-		$fld = Vtiger_Field::getInstance($this->prefix . 'prod_min_stock', $mod);
+		$fld = Vtiger_Field::getInstance($this->prefix . 'prod_max_stock', $mod);
 		if ($fld !== false) $fld->delete();
 
 		$mod = Vtiger_Module::getInstance('SalesOrder');
@@ -287,7 +287,7 @@ Class InventoryExtras {
 		$adb->query("ALTER TABLE vtiger_products DROP COLUMN " . $this->prefix . "prod_qty_in_order");
 		$adb->query("ALTER TABLE vtiger_products DROP COLUMN " . $this->prefix . "prod_stock_avail");
 		$adb->query("ALTER TABLE vtiger_products DROP COLUMN " . $this->prefix . "prod_qty_to_order");
-		$adb->query("ALTER TABLE vtiger_products DROP COLUMN " . $this->prefix . "prod_min_stock");
+		$adb->query("ALTER TABLE vtiger_products DROP COLUMN " . $this->prefix . "prod_max_stock");
 		$adb->query("ALTER TABLE vtiger_salesorder DROP COLUMN " . $this->prefix . "so_no_stock_change");
 
 		$moduleInstance = Vtiger_Module::getInstance('Products');
