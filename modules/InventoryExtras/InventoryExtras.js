@@ -23,6 +23,10 @@ function appendStockCell(recordId, stockCell) {
 			if (r.response != "NOTHINGFOUND") {
 				var stockInfo = JSON.parse(r.response);
 
+				var stockAvailSpan = document.createElement("SPAN");
+				stockAvailSpan.innerHTML = "<br /><b>" + stockInfo.stockavail.label + ":&nbsp;</b>" + stockInfo.stockavail.value;
+				stockCell.appendChild(stockAvailSpan);
+
 				var inDemandSpan = document.createElement("SPAN");
 				inDemandSpan.innerHTML = "<br /><b>" + stockInfo.qtyindemand.label + ":&nbsp;</b>" + stockInfo.qtyindemand.value;
 				stockCell.appendChild(inDemandSpan);

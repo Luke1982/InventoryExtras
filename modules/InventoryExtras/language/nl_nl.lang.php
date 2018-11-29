@@ -9,14 +9,7 @@
  ************************************************************************************/
 
 $mod_strings = array(
-	'ModuleName' => 'Module Name',
-	'SINGLE_ModuleName' => 'Module Name',
-	'ModuleName ID' => 'Module Name ID',
-
-	'LBL_CUSTOM_INFORMATION' => 'Custom Information',
-	'LBL_MODULEBLOCK_INFORMATION' => 'ModuleBlock Information',
-	'LBL_DESCRIPTION_INFORMATION' => 'Verkoopkans omschrijving',
-
-	'ModuleFieldLabel' => 'ModuleFieldLabel Text',
+	'LBL_TO_DELIVER_SO' => 'Nog te leveren (verkooporders)',
+	'LBL_TO_RECEIVE_PO' => 'Nog te ontvangen (inkooporders)',
 );
 ?>

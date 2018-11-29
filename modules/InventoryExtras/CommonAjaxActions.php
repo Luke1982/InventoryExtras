@@ -31,13 +31,20 @@ function getStockInfoByProduct($product_id) {
 	$invext = new InventoryExtras();
 	$invext_prefix = $invext->getPrefix();
 
-	$r = $adb->pquery("SELECT {$invext_prefix}prod_qty_in_order AS qtyinorder, qtyindemand FROM vtiger_products WHERE productid = ?", array($product_id));
+	$r = $adb->pquery("SELECT {$invext_prefix}prod_qty_in_order AS qtyinorder, 
+		                      {$invext_prefix}prod_stock_avail AS stockavail, 
+		                      qtyindemand FROM vtiger_products WHERE productid = ?", array($product_id));
 	if ($adb->num_rows($r) > 0) {
 		$data = $adb->fetch_array($r);
+
 		$qty_in_order = CurrencyField::convertToUserFormat($data['qtyinorder']);
+		$stock_avail = CurrencyField::convertToUserFormat($data['stockavail']);
 		$qty_in_demand = CurrencyField::convertToUserFormat($data['qtyindemand']);
-		$qty_in_order_lab = getTranslatedString($invext_prefix . 'prod_qty_in_order', 'Products');
-		$qty_in_demand_lab = getTranslatedString('Qty In Demand', 'Products');
+
+		$qty_in_order_lab = getTranslatedString('LBL_TO_DELIVER_SO', 'InventoryExtras');
+		$qty_in_demand_lab = getTranslatedString('LBL_TO_RECEIVE_PO', 'InventoryExtras');
+		$stock_avail_lab = getTranslatedString($invext_prefix . 'prod_stock_avail', 'Products');
+		
 		echo json_encode(array(
 			'qtyinorder' => array(
 				'label' => $qty_in_order_lab,
@@ -45,6 +52,9 @@ function getStockInfoByProduct($product_id) {
 			'qtyindemand' => array(
 				'label' => $qty_in_demand_lab,
 			    'value' => $qty_in_demand),
+			'stockavail' => array(
+				'label' => $stock_avail_lab,
+			    'value' => $stock_avail),
 			)
 		);
 	} else {
