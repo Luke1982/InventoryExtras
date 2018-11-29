@@ -13,6 +13,14 @@ There will be a new field in products called quantity in order. That field will 
 ### Available stock in Products
 Products will receive a new field that represents the quantity you have available in reality. This no. will simply be the stock you have minus the quantity in order there is for this product (field above)
 
+### Order recommendation field in Products
+A field will be installed in Products that recommends you how many items you should order. The formula is:
+- (Quantity in order -/- Reorder lever) -/- (Qty in Stock -/- Qty in Demand)
+So this basically tells you how many you should order to meet your current no. in order for this product, taking into account how many you already have, how many you want in stock (at minimum) and how many you have already ordered at your suppliers.
+
+### Maximum stock field in Products
+No logic attached, but you could use this to set your maximum stock and send out an alert when there are too many in stock
+
 ### Pending orders widget in Products
 Products will receive a new widget where there will be a list of all salesorders that have an inventorydetails line related to it where the product ID is this one. The widget will show a link to the salesorder and the quantity in order this salesorder represents. This quantity could be negative! If you for instance have a salesorder that sells a product once, but there are more than one sold on invoices related to this salesorder, the value will be negative.
 
@@ -24,6 +32,19 @@ When an inventorydetails line is saved, the module will look for all lines that 
 
 ### Update all lines when a PurchaseOrder is marked as received
 It will install a workflow that allows you to create a custom workflow task. This task will alter all the inventorydetails records related to this record (you could tie in to any module that has inventorydetails). The alteration will be that all the units delivered/received will be set equal to the quantity of the line. That way you could make a single purchaseorder as 'Goods Received' and have all the lines be set equal to their quantity's in the units delivered/received field, which will fire related events, like create inventorymutations or the aftersave events on this module.
+
+## Enhance lines in SalesOrders and PurchaseOrders
+Some additional information will be added to the 'Information' column in inventory lines when in SalesOrders and PurchaseOrders:
+#### In SalesOrders
+You will see, per line:
+- The qty in stock available for this product. This takes the qty in order into account
+- The qty in demand for this product. How many are there in backorder at your suppliers?
+- The total no. in order for this product.
+- The quantity to order for this product, see 'order recommendation' field above
+
+#### In PurchaseOrders
+- The quantity to order for this product, see 'order recommendation' field above
+- The vendor part no. for this product
 
 ### Leave stock alone checkbox in SalesOrders
 A new checkbox will be installed on salesorders. When you check it, this order will not affect the quantity in order on any of its lines or on the related products.
