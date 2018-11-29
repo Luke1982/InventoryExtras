@@ -20,15 +20,23 @@ class updateNosInOrder extends cbupdaterWorker {
 		ini_set('memory_limit', '2048M');
 		global $adb, $current_user;
 		require_once 'modules/InventoryDetails/InventoryDetails.php';
+		require_once 'modules/InventoryExtras/InventoryExtras.php';		
 
 		if ($this->hasError()) $this->sendError();
 		if ($this->isApplied()) {
 			$this->sendMsg('Changeset '.get_class($this).' already applied!');
 		} else {
 
+			$invext = new InventoryExtras();
+			$invext_prefix = $invext->getPrefix();			
+
+			$adb->query("UPDATE vtiger_salesorder SET {$invext_prefix}so_no_stock_change = 0");
 			$adb->query("UPDATE vtiger_inventorydetails INNER JOIN vtiger_salesorder ON vtiger_inventorydetails.related_to = vtiger_salesorder.salesorderid SET vtiger_inventorydetails.invextras_qty_in_order = (vtiger_inventorydetails.quantity - vtiger_inventorydetails.units_delivered_received)");
 
-			$r = $adb->query("SELECT vtiger_inventorydetails.related_to, vtiger_inventorydetails.inventorydetailsid AS id 
+			$r = $adb->query("SELECT vtiger_inventorydetails.related_to, 
+				                     vtiger_inventorydetails.inventorydetailsid AS id, 
+				                     vtiger_inventorydetails.productid AS id, 
+				                     vtiger_inventorydetails.{$invext_prefix}so_sibling AS sibl_id 
 				              FROM vtiger_inventorydetails 
 			                  INNER JOIN vtiger_invoice ON 
 			                  vtiger_inventorydetails.related_to = vtiger_invoice.invoiceid 
@@ -43,17 +51,19 @@ class updateNosInOrder extends cbupdaterWorker {
 			                  WHERE vtiger_crmentity.deleted = 0 
 			                  AND crment_inv.deleted = 0 
 			                  AND crment_so.deleted = 0");
+
 			while($row = $adb->fetch_array($r)) {
-				$id = new InventoryDetails();
-				$id->retrieve_entity_info($row['id'], 'InventoryDetails');
-				$id->id = $row['id'];
-				$id->mode = 'edit';
 
-				$handler = vtws_getModuleHandlerFromName('InventoryDetails', $current_user);
-				$meta = $handler->getMeta();
-				$id->column_fields = DataTransform::sanitizeRetrieveEntityInfo($id->column_fields, $meta);
-
-				$id->save('InventoryDetails');	
+				$sibl = $invext->getSiblingFromInvoice($row['related_to'], $row['productid']);
+				if (!!$sibl) {
+					if ($row['sibl_id'] == '0' || $row['sibl_id'] == '' || $row['sibl_id'] == 0) {
+						// This is an invoice line and no related salesorder line has been set yet
+						$adb->pquery("UPDATE vtiger_inventorydetails SET {$invext_prefix}so_sibling = ? 
+							          WHERE inventorydetailsid = ?", array((int)$sibl['id'], $row['id']));
+					}
+					$qty_delivered = $invext->getInvoiceQtysFromSoLine($sibl['id']);
+					$invext->updateInvDetRec($sibl['id'], $sibl['quantity'], 0, $qty_delivered);
+				}	
 			}		
 
 			$this->sendMsg('Changeset '.get_class($this).' applied!');
