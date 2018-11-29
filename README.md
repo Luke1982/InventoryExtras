@@ -27,3 +27,10 @@ It will install a workflow that allows you to create a custom workflow task. Thi
 
 ### Leave stock alone checkbox in SalesOrders
 A new checkbox will be installed on salesorders. When you check it, this order will not affect the quantity in order on any of its lines or on the related products.
+
+## After installation
+The module installs two cbupdates, which you should run immediately after installing the module
+#### updateNosInOrder
+This update will first set all the database values for the checkbox 'Leave stock alone' to 0 in favor of NULL. This is so the query that calculates the no's in order can work. When you create a new SalesOrder, that value will be set to 0 anyway (if you don't check the box). It will then start off by setting all the no's in order to the difference between the quantity of the SalesOrder line and the quantity delivered for that line. Lastly, and most demanding (this update will take a **long** time and need 2GB of RAM, especially when you have many lines) the update will find all invoice lines, find the matching salesorder lines and then update them accordingly. This will also trigger updating the quantity in order (total) on the product.
+#### updateQtysInDemand
+This will get all the purchaseorder lines that have a status of 'Received Shipment' or 'Delivered' and set all units received equal to the quantity of the line. It will then save the line, which in turn will update the Qty in Demand on the product.
