@@ -14,15 +14,15 @@
 * at <http://corebos.org/documentation/doku.php?id=en:devel:vpl11>
 *************************************************************************************************/
 switch ($_REQUEST['function']) {
-	case 'getStockInfoByProduct':
-		getStockInfoByProduct($_REQUEST['productid']);
+	case 'getInfoByProduct':
+		getInfoByProduct($_REQUEST['productid']);
 		break;
 	default:
 		echo "Nothing to declare sir..";
 		break;
 }
 
-function getStockInfoByProduct($product_id) {
+function getInfoByProduct($product_id) {
 	global $adb
 	;
 	require_once 'modules/InventoryExtras/InventoryExtras.php';
@@ -33,17 +33,23 @@ function getStockInfoByProduct($product_id) {
 
 	$r = $adb->pquery("SELECT {$invext_prefix}prod_qty_in_order AS qtyinorder, 
 		                      {$invext_prefix}prod_stock_avail AS stockavail, 
-		                      qtyindemand FROM vtiger_products WHERE productid = ?", array($product_id));
+		                      {$invext_prefix}prod_qty_to_order AS qtytoorder, 
+		                      qtyindemand, 
+		                      vendor_part_no 
+		               FROM vtiger_products WHERE productid = ?", array($product_id));
 	if ($adb->num_rows($r) > 0) {
 		$data = $adb->fetch_array($r);
 
 		$qty_in_order = CurrencyField::convertToUserFormat($data['qtyinorder']);
 		$stock_avail = CurrencyField::convertToUserFormat($data['stockavail']);
+		$qty_to_order = CurrencyField::convertToUserFormat($data['qtytoorder']);
 		$qty_in_demand = CurrencyField::convertToUserFormat($data['qtyindemand']);
 
 		$qty_in_order_lab = getTranslatedString('LBL_TO_DELIVER_SO', 'InventoryExtras');
 		$qty_in_demand_lab = getTranslatedString('LBL_TO_RECEIVE_PO', 'InventoryExtras');
 		$stock_avail_lab = getTranslatedString($invext_prefix . 'prod_stock_avail', 'Products');
+		$qty_to_order_lab = getTranslatedString($invext_prefix . 'prod_qty_to_order', 'Products');
+		$ven_part_no_lab = getTranslatedString('Vendor PartNo', 'Products');
 		
 		echo json_encode(array(
 			'qtyinorder' => array(
@@ -55,6 +61,12 @@ function getStockInfoByProduct($product_id) {
 			'stockavail' => array(
 				'label' => $stock_avail_lab,
 			    'value' => $stock_avail),
+			'qtytoorder' => array(
+				'label' => $qty_to_order_lab,
+			    'value' => $qty_to_order),
+			'venpartno' => array(
+				'label' => $ven_part_no_lab,
+			    'value' => $data['vendor_part_no']),
 			)
 		);
 	} else {
