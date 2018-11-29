@@ -583,6 +583,10 @@ Class InventoryExtras {
 			$p->column_fields[$this->prefix . 'prod_stock_avail'] = (float)$p->column_fields['qtyinstock'] - (float)$qty_in_order;
 		}
 
+		// Update the quantity you should order to meet all orders in respect to currently
+		// quantity's in salesorder (non-invoiced) and quantity's in purchaseorders
+		$p->column_fields[$this->prefix . 'prod_qty_to_order'] = ($p->column_fields[$this->prefix . 'prod_qty_in_order'] + $p->column_fields['reorderlevel']) - ($p->column_fields['qtyinstock'] + $p->column_fields['qtyindemand']);
+
 		$handler = vtws_getModuleHandlerFromName('Products', $current_user);
 		$meta = $handler->getMeta();
 		unset($_REQUEST['ajxaction']);
