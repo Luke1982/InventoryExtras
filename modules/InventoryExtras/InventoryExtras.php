@@ -567,7 +567,7 @@ Class InventoryExtras {
 		return $adb->fetch_array($r)['qty_bo'];
 	}
 
-	public function updateProductQtyInOrder($productid, $qty_in_order, $fieldname) {
+	public function updateProductQtyInOrder($productid, $qty_in_order, $fieldname, $source_mod = '') {
 		global $current_user;
 		require_once 'modules/Products/Products.php';
 
@@ -578,14 +578,13 @@ Class InventoryExtras {
 
 		$p->column_fields[$fieldname] = $qty_in_order;
 
-		if ($fieldname == $this->prefix . 'prod_qty_in_order') {
+		if ($source_mod == 'SalesOrder') {
 			// Recalculate available stock
 			$p->column_fields[$this->prefix . 'prod_stock_avail'] = (float)$p->column_fields['qtyinstock'] - (float)$qty_in_order;
+			// Update the quantity you should order to meet all orders in respect to currently
+			// quantity's in salesorder (non-invoiced) and quantity's in purchaseorders
+			$p->column_fields[$this->prefix . 'prod_qty_to_order'] = ($p->column_fields[$this->prefix . 'prod_qty_in_order'] + $p->column_fields['reorderlevel']) - ($p->column_fields['qtyinstock'] + $p->column_fields['qtyindemand']);			
 		}
-
-		// Update the quantity you should order to meet all orders in respect to currently
-		// quantity's in salesorder (non-invoiced) and quantity's in purchaseorders
-		$p->column_fields[$this->prefix . 'prod_qty_to_order'] = ($p->column_fields[$this->prefix . 'prod_qty_in_order'] + $p->column_fields['reorderlevel']) - ($p->column_fields['qtyinstock'] + $p->column_fields['qtyindemand']);
 
 		$handler = vtws_getModuleHandlerFromName('Products', $current_user);
 		$meta = $handler->getMeta();

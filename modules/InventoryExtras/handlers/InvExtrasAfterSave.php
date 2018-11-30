@@ -51,7 +51,7 @@ Class InvExtrasAfterSave extends VTEventHandler {
 						$invext->updateInvDetRec($invdet_id, $invdet_data['quantity'], 0, $qty_delivered, true); // last param = saveentity (avoid infinite loop)	
 					}
 					$qty_in_order_tot = $invext->getQtyInOrderByProduct($invdet_data['productid']);
-					$invext->updateProductQtyInOrder($invdet_data['productid'], $qty_in_order_tot, $invext_prefix . 'prod_qty_in_order');
+					$invext->updateProductQtyInOrder($invdet_data['productid'], $qty_in_order_tot, $invext_prefix . 'prod_qty_in_order', $related_type);
 				} else if ($related_type == 'PurchaseOrder') {
 					$qty_in_backord_tot = $invext->getTotalInBackOrder($invdet_data['productid']);
 					$invext->updateProductQtyInOrder($invdet_data['productid'], $qty_in_backord_tot, 'qtyindemand');
