@@ -50,7 +50,7 @@ Class InvExtrasAfterSave extends VTEventHandler {
 						$qty_delivered = $invext->getInvoiceQtysFromSoLine($invdet_id);
 						$invext->updateInvDetRec($invdet_id, $invdet_data['quantity'], 0, $qty_delivered, true); // last param = saveentity (avoid infinite loop)	
 					}
-					$qty_in_order_tot = $invext->getQtyInOrderByProduct($invdet_data['productid']);
+					$qty_in_order_tot = $invext->getQtyInOrderByProduct($invdet_data['productid']);					
 					$invext->updateProductQtyInOrder($invdet_data['productid'], $qty_in_order_tot, $invext_prefix . 'prod_qty_in_order', $related_type);
 				} else if ($related_type == 'PurchaseOrder') {
 					$qty_in_backord_tot = $invext->getTotalInBackOrder($invdet_data['productid']);
@@ -58,31 +58,62 @@ Class InvExtrasAfterSave extends VTEventHandler {
 				}
 			}
 		} else if ($moduleName == 'SalesOrder' && $_REQUEST['action'] == 'SalesOrderAjax' && $_REQUEST['file'] == 'DetailViewAjax') {
+			// Inventorydetails lines don't get saved when a related record (SO, PO, etc) is edited inline. Therefor the code above
+			// won't work. We need to catch some events here that we know could affect our calculations
 			global $adb, $current_user;
 			require_once 'modules/InventoryDetails/InventoryDetails.php';
+			require_once 'data/VTEntityDelta.php';		
 
 			$so_id = $entityData->getId();
-			$so_data = $entityData->getData();	
+			$so_data = $entityData->getData();
+			$delta = VTEntityDelta::getEntityDelta('SalesOrder', $entityData->getId());
 
-			$r = $adb->pquery("SELECT vtiger_inventorydetails.inventorydetailsid AS id FROM vtiger_inventorydetails 
-				               INNER JOIN vtiger_crmentity ON 
-				               vtiger_inventorydetails.inventorydetailsid = vtiger_crmentity.crmid 
-				               WHERE vtiger_inventorydetails.related_to = ? 
-				               AND vtiger_crmentity.deleted = ?", array($so_id, 0));
+			if (array_key_exists('invextras_so_no_stock_change', $delta)) {
+				// Only fire when so_no_stock_change checkbox was altered
+				$r = $adb->pquery("SELECT vtiger_inventorydetails.inventorydetailsid AS id FROM vtiger_inventorydetails 
+					               INNER JOIN vtiger_crmentity ON 
+					               vtiger_inventorydetails.inventorydetailsid = vtiger_crmentity.crmid 
+					               WHERE vtiger_inventorydetails.related_to = ? 
+					               AND vtiger_crmentity.deleted = ?", array($so_id, 0));
 
-			while ($invdet = $adb->fetch_array($r)) {
-				$invdet_id = $invdet['id'];
+				while ($invdet = $adb->fetch_array($r)) {
+					$invdet_id = $invdet['id'];
 
-				$id = new InventoryDetails();
-				$id->retrieve_entity_info($invdet_id, 'InventoryDetails');
-				$id->id = $invdet_id;
-				$id->mode = 'edit';
+					$id = new InventoryDetails();
+					$id->retrieve_entity_info($invdet_id, 'InventoryDetails');
+					$id->id = $invdet_id;
+					$id->mode = 'edit';
 
-				$handler = vtws_getModuleHandlerFromName('InventoryDetails', $current_user);
-				$meta = $handler->getMeta();
-				$id->column_fields = DataTransform::sanitizeRetrieveEntityInfo($id->column_fields, $meta);
+					$handler = vtws_getModuleHandlerFromName('InventoryDetails', $current_user);
+					$meta = $handler->getMeta();
+					$id->column_fields = DataTransform::sanitizeRetrieveEntityInfo($id->column_fields, $meta);
 
-				$id->save('InventoryDetails');				
+					$id->save('InventoryDetails');				
+				}
+			}
+		} else if ($moduleName == 'PurchaseOrder' && $_REQUEST['action'] == 'PurchaseOrderAjax' && $_REQUEST['file'] == 'DetailViewAjax') {
+			// Be sure to update the product in demand field when a purchaseorder status changes through inline edit
+			global $adb, $current_user;
+			require_once 'modules/InventoryExtras/InventoryExtras.php';
+			require_once 'data/VTEntityDelta.php';		
+
+			$invext = new InventoryExtras();
+			$po_id = $entityData->getId();
+			$po_data = $entityData->getData();
+			$delta = VTEntityDelta::getEntityDelta('PurchaseOrder', $entityData->getId());
+
+			if (array_key_exists('postatus', $delta)) {
+				// Only fire when postatus was altered
+				$r = $adb->pquery("SELECT vtiger_inventorydetails.productid FROM vtiger_inventorydetails 
+					               INNER JOIN vtiger_crmentity ON 
+					               vtiger_inventorydetails.inventorydetailsid = vtiger_crmentity.crmid 
+					               WHERE vtiger_inventorydetails.related_to = ? 
+					               AND vtiger_crmentity.deleted = ?", array($po_id, 0));
+
+				while ($prod = $adb->fetch_array($r)) {
+					$qty_in_backord_tot = $invext->getTotalInBackOrder($prod['productid']);
+					$invext->updateProductQtyInOrder($prod['productid'], $qty_in_backord_tot, 'qtyindemand');
+				}
 			}
 		}
 	}
