@@ -15,9 +15,10 @@ Products will receive a new field that represents the quantity you have availabl
 
 ### Order recommendation field in Products
 A field will be installed in Products that recommends you how many items you should order. The formula is:
-- (Quantity in order -/- Reorder level) -/- (Qty in Stock -/- Qty in Demand)
+- (Quantity in order + Reorder level) -/- (Qty in Stock + Qty in Demand)
 
-So this basically tells you how many you should order to meet your current no. in order for this product, taking into account how many you already have, how many you want in stock (at minimum) and how many you have already ordered at your suppliers.
+This field wil **not** be manipulated by InventoryExtras, since the only time we have the opportunity to do that is *before* the stock level is changed to its ultimate value. Therefor any calculation made in the code will be incorrect. You should use InventoryMutations and create a workflow task that updates the field. Set that task to do its work **last**, since it needs all other values to be updated first.
+
 
 ### Maximum stock field in Products
 No logic attached, but you could use this to set your maximum stock and send out an alert when there are too many in stock
