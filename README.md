@@ -19,7 +19,6 @@ A field will be installed in Products that recommends you how many items you sho
 
 This field wil **not** be manipulated by InventoryExtras, since the only time we have the opportunity to do that is *before* the stock level is changed to its ultimate value. Therefor any calculation made in the code will be incorrect. You should use InventoryMutations and create a workflow task that updates the field. Set that task to do its work **last**, since it needs all other values to be updated first.
 
-
 ### Maximum stock field in Products
 No logic attached, but you could use this to set your maximum stock and send out an alert when there are too many in stock
 
