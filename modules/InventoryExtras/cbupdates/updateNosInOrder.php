@@ -32,7 +32,7 @@ class updateNosInOrder extends cbupdaterWorker {
 
 			// Set some defaults in the database first
 			$adb->query("UPDATE vtiger_salesorder SET {$invext_prefix}so_no_stock_change = 0");
-			$adb->query("UPDATE vtiger_inventorydetails INNER JOIN vtiger_salesorder ON vtiger_inventorydetails.related_to = vtiger_salesorder.salesorderid SET vtiger_inventorydetails.invextras_qty_in_order = (vtiger_inventorydetails.quantity - vtiger_inventorydetails.units_delivered_received)");
+			$adb->query("UPDATE vtiger_inventorydetails INNER JOIN vtiger_salesorder ON vtiger_inventorydetails.related_to = vtiger_salesorder.salesorderid SET vtiger_inventorydetails.invextras_qty_in_order = (vtiger_inventorydetails.quantity - vtiger_inventorydetails.invextras_qty_invoiced)");
 
 			// Get the invoice lines
 			$r = $adb->query("SELECT vtiger_inventorydetails.related_to, 

@@ -32,6 +32,10 @@ Class InventoryExtras {
 			'en_us' => 'Salesorder sibling line',
 			'nl_nl' => 'Gekoppelde orderregel',
 		),
+		'invextras_qty_invoiced' => array(
+			'en_us' => 'Qty invoiced',
+			'nl_nl' => 'Aantal gefactureerd',
+		),
 		'LBL_INVDET_SO_INFO' => array(
 			'en_us' => 'SalesOrder info (when related)',
 			'nl_nl' => 'Verkooporder informatie (wanneer gekoppeld)',
@@ -43,6 +47,10 @@ Class InventoryExtras {
 		'LBL_HELP_ID_SO_SIBLING' => array(
 			'en_us' => 'The opposed salesorder line',
 			'nl_nl' => 'De gekoppelde verkooporder regel',
+		),
+		'LBL_HELP_ID_QTY_INVOICED' => array(
+			'en_us' => 'The quantity that has been invoiced opposed to this line (only applicable when this is a SalesOrder line',
+			'nl_nl' => 'Het aantal dat van deze regel gefactureerd is (alleen van toepassing als dit een verkooporder regel is',
 		),
 	);
 	private $i18n_prod = array(
@@ -146,6 +154,20 @@ Class InventoryExtras {
 		$fld->column = $this->prefix . 'qty_in_order';
 		$fld->columntype = 'DECIMAL(28,3)';
 		$fld->helpinfo = 'LBL_HELP_ID_QTY_IN_ORDER';
+		$fld->uitype = 7;
+		$fld->typeofdata = 'NN~O';
+		$fld->presence = 0;
+		$fld->displaytype = 1;
+		$fld->masseditable = 0;
+
+		$blk->addField($fld);
+
+		$fld = new Vtiger_Field();
+		$fld->name  = $this->prefix . 'qty_invoiced';
+		$fld->table = 'vtiger_inventorydetails';
+		$fld->column = $this->prefix . 'qty_invoiced';
+		$fld->columntype = 'DECIMAL(28,3)';
+		$fld->helpinfo = 'LBL_HELP_ID_QTY_INVOICED';
 		$fld->uitype = 7;
 		$fld->typeofdata = 'NN~O';
 		$fld->presence = 0;
@@ -284,6 +306,7 @@ Class InventoryExtras {
 
 		// Also remove the columns from InventoryDetails table
 		$adb->query("ALTER TABLE vtiger_inventorydetails DROP COLUMN " . $this->prefix . "so_sibling, DROP COLUMN " . $this->prefix . "qty_in_order");
+		$adb->query("ALTER TABLE vtiger_inventorydetails DROP COLUMN " . $this->prefix . "qty_invoiced");
 		$adb->query("ALTER TABLE vtiger_products DROP COLUMN " . $this->prefix . "prod_qty_in_order");
 		$adb->query("ALTER TABLE vtiger_products DROP COLUMN " . $this->prefix . "prod_stock_avail");
 		$adb->query("ALTER TABLE vtiger_products DROP COLUMN " . $this->prefix . "prod_qty_to_order");
@@ -461,8 +484,9 @@ Class InventoryExtras {
 	 * @param : The inventorydetails record ID that you want to set as this records' sibling
 	 * @param : The units delivered
 	 * @param : (bool) Use 'save' mothod or 'saveentity' (avoid other aftersave events and workflows)
+	 * @param : (string) The type of delivery ('invoiced'/'delivered') decides which field the $units_del will set
 	 */
-	public function updateInvDetRec($invdet_id, $invdet_qty, $sibl_id, $units_del, $saveentity = false) {
+	public function updateInvDetRec($invdet_id, $invdet_qty, $sibl_id, $units_del, $saveentity = false, $deliver_type = 'delivered') {
 		global $current_user;
 		require_once 'modules/InventoryDetails/InventoryDetails.php';
 		require_once 'include/utils/VtlibUtils.php';
@@ -486,7 +510,13 @@ Class InventoryExtras {
 		}
 
 		$id->column_fields[$this->prefix . 'so_sibling'] = $sibl_id;
-		$id->column_fields['units_delivered_received'] = $units_del;
+
+		if ($deliver_type == 'invoiced') {
+			$id->column_fields[$this->prefix . 'qty_invoiced'] = $units_del;
+		} else {
+			$id->column_fields['units_delivered_received'] = $units_del;
+		}
+		
 
 		if (!$this->getSoNoStockChange($invdet_id)) {
 			$id->column_fields[$this->prefix . 'qty_in_order'] = $invdet_qty - $units_del;

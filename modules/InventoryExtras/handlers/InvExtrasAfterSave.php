@@ -30,7 +30,9 @@ Class InvExtrasAfterSave extends VTEventHandler {
 			$related_item = getSalesEntityType($invdet_data['productid']);
 
 			if ($related_item == 'Products') {
+
 				if ($related_type == 'Invoice') {
+
 					$sibl = $invext->getSiblingFromInvoice($invdet_data['related_to'], $invdet_data['productid']);
 					if (!!$sibl) {
 						if ($invdet_data[$invext_prefix . 'so_sibling'] == '0' || $invdet_data[$invext_prefix . 'so_sibling'] == '') {
@@ -38,26 +40,34 @@ Class InvExtrasAfterSave extends VTEventHandler {
 							$adb->pquery("UPDATE vtiger_inventorydetails SET {$invext_prefix}so_sibling = ? 
 								          WHERE inventorydetailsid = ?", array((int)$sibl['id'], $invdet_id));
 						}
-						$qty_delivered = $invext->getInvoiceQtysFromSoLine($sibl['id']);
-						$invext->updateInvDetRec($sibl['id'], $sibl['quantity'], 0, $qty_delivered);
-					}					
+						$qty_invoiced = $invext->getInvoiceQtysFromSoLine($sibl['id']);
+						$invext->updateInvDetRec($sibl['id'], $sibl['quantity'], 0, $qty_invoiced, false, 'invoiced');
+					}
+
 				} else if ($related_type == 'SalesOrder') {
+
 					if ($invext->getInvoiceQtysFromSoLine($invdet_id) == 0) {
 						// There were no invoice lines related to this salesorder line
-						$invext->updateInvDetRec($invdet_id, $invdet_data['quantity'], 0, 0, true); // last param = saveentity (avoid infinite loop)
+						$invext->updateInvDetRec($invdet_id, $invdet_data['quantity'], 0, 0, true, 'invoiced');
 					} else {
 						// There were invoice lines found, update to be sure
 						$qty_delivered = $invext->getInvoiceQtysFromSoLine($invdet_id);
-						$invext->updateInvDetRec($invdet_id, $invdet_data['quantity'], 0, $qty_delivered, true); // last param = saveentity (avoid infinite loop)	
+						$invext->updateInvDetRec($invdet_id, $invdet_data['quantity'], 0, $qty_delivered, true, 'invoiced');
 					}
 					$qty_in_order_tot = $invext->getQtyInOrderByProduct($invdet_data['productid']);					
 					$invext->updateProductQtyInOrder($invdet_data['productid'], $qty_in_order_tot, $invext_prefix . 'prod_qty_in_order', $related_type);
+
 				} else if ($related_type == 'PurchaseOrder') {
+
 					$qty_in_backord_tot = $invext->getTotalInBackOrder($invdet_data['productid']);
 					$invext->updateProductQtyInOrder($invdet_data['productid'], $qty_in_backord_tot, 'qtyindemand');
+
 				}
+
 			}
+
 		} else if ($moduleName == 'SalesOrder' && $_REQUEST['action'] == 'SalesOrderAjax' && $_REQUEST['file'] == 'DetailViewAjax') {
+
 			// Inventorydetails lines don't get saved when a related record (SO, PO, etc) is edited inline. Therefor the code above
 			// won't work. We need to catch some events here that we know could affect our calculations
 			global $adb, $current_user;
@@ -91,7 +101,9 @@ Class InvExtrasAfterSave extends VTEventHandler {
 					$id->save('InventoryDetails');				
 				}
 			}
+
 		} else if ($moduleName == 'PurchaseOrder' && $_REQUEST['action'] == 'PurchaseOrderAjax' && $_REQUEST['file'] == 'DetailViewAjax') {
+
 			// Be sure to update the product in demand field when a purchaseorder status changes through inline edit
 			global $adb, $current_user;
 			require_once 'modules/InventoryExtras/InventoryExtras.php';
@@ -115,6 +127,7 @@ Class InvExtrasAfterSave extends VTEventHandler {
 					$invext->updateProductQtyInOrder($prod['productid'], $qty_in_backord_tot, 'qtyindemand');
 				}
 			}
+			
 		}
 	}
 }

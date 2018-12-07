@@ -9,15 +9,16 @@
 
 function appendInvExtraInfo() {
 	var invRows = document.getElementsByClassName("detailview_inventory_row");
+	var sourceRecId = document.getElementsByName("record")[0].value;
 	for (var i = 0; i < invRows.length; i++) {
 		var recordId  = invRows[i].getElementsByTagName("SPAN")[0].getAttribute("vtrecordid");
 		var stockCell = invRows[i].getElementsByClassName("detailview_inventory_stockcell")[0];
 		var qtyCell = invRows[i].getElementsByClassName("detailview_inventory_qtycell")[0];
-		appendCells(recordId, stockCell, qtyCell);
+		appendCells(sourceRecId, recordId, stockCell, qtyCell, i+1);
 	}
 }
 
-function appendCells(recordId, stockCell, qtyCell) {
+function appendCells(sourceRecId, recordId, stockCell, qtyCell, seq) {
 	var r = new XMLHttpRequest();
 	r.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
@@ -33,12 +34,17 @@ function appendCells(recordId, stockCell, qtyCell) {
 			}
 		}
 	}
-	r.open("GET", "index.php?module=InventoryExtras&action=InventoryExtrasAjax&file=CommonAjaxActions&function=getInfoByProduct&productid=" + recordId);
+	r.open("GET", "index.php?module=InventoryExtras&action=InventoryExtrasAjax&file=CommonAjaxActions&function=getInfoByProduct&productid=" 
+		           + recordId + "&record=" + sourceRecId + "&seq=" + seq);
 	r.send();
 
 }
 
 function setSoStockCell(stockCell, stockInfo) {
+	var qtyInvoicedSpan = document.createElement("SPAN");
+	qtyInvoicedSpan.innerHTML = "<br /><b>" + stockInfo.qtyinvoiced.label + ":&nbsp;</b>" + stockInfo.qtyinvoiced.value;
+	stockCell.appendChild(qtyInvoicedSpan);
+		
 	var stockAvailSpan = document.createElement("SPAN");
 	stockAvailSpan.innerHTML = "<br /><b>" + stockInfo.stockavail.label + ":&nbsp;</b>" + stockInfo.stockavail.value;
 	stockCell.appendChild(stockAvailSpan);
