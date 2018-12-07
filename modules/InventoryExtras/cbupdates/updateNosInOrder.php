@@ -66,7 +66,8 @@ class updateNosInOrder extends cbupdaterWorker {
 					$qty_delivered = $invext->getInvoiceQtysFromSoLine($sibl['id']);
 					$invext->updateInvDetRec($sibl['id'], $sibl['quantity'], 0, $qty_delivered);
 				}	
-			}		
+			}
+			$adb->query("UPDATE vtiger_products SET invextras_prod_qty_to_order=((invextras_prod_qty_in_order + reorderlevel) - (qtyinstock + qtyindemand))");	
 
 			$this->sendMsg('Changeset '.get_class($this).' applied!');
 			$this->markApplied();
