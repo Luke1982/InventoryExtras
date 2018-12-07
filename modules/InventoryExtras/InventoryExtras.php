@@ -496,7 +496,7 @@ Class InventoryExtras {
 		$id->id = $invdet_id;
 		$id->mode = 'edit';
 
-		if (vtlib_isModuleActive('InventoryMutations') && $saveentity) {
+		if (vtlib_isModuleActive('InventoryMutations') && $saveentity && $deliver_type == 'delivered') {
 			require_once 'modules/InventoryMutations/InventoryMutations.php';
 			// create inventorymutations record since saveentity doesn't call the aftersave
 			$this->createInventoryMutation(array(
