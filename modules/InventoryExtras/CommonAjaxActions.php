@@ -38,7 +38,7 @@ function getInfoByProduct($product_id, $record_id, $seq) {
 		                      vendor_part_no 
 		               FROM vtiger_products WHERE productid = ?", array($product_id));
 
-	$invdet_info = $adb->fetch_array($adb->pquery("SELECT invextras_qty_invoiced AS qty_invoiced 
+	$invdet_info = $adb->fetch_array($adb->pquery("SELECT SUM(invextras_qty_invoiced) AS qty_invoiced 
 		                                           FROM vtiger_inventorydetails 
 		                                           WHERE related_to = ? 
 		                                           AND sequence_no = ? 
