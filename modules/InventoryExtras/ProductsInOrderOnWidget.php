@@ -26,7 +26,7 @@ $r = $adb->pquery("SELECT vtiger_inventorydetails.invextras_qty_in_order AS qty,
 						  WHERE vtiger_inventorydetails.productid = ? 
 						  AND crment_so.deleted = ? 
 						  AND vtiger_crmentity.deleted = ? 
-						  AND CAST(vtiger_inventorydetails.invextras_qty_in_order AS INT) != ? 
+						  AND CAST(vtiger_inventorydetails.invextras_qty_in_order AS UNSIGNED) != ? 
 						  AND (vtiger_salesorder.invextras_so_no_stock_change = ? OR 
                                vtiger_salesorder.invextras_so_no_stock_change IS NULL)", array($_REQUEST['record'], 0, 0, 0, 0));
 
