@@ -324,7 +324,7 @@ Class InventoryExtras {
 		global $adb;
 		require 'include/events/include.inc';
 		$em = new VTEventsManager($adb);
-		$eventName = 'vtiger.entity.aftersave';
+		$eventName = 'vtiger.entity.aftersave.first';
 		$filePath = 'modules/InventoryExtras/handlers/InvExtrasAfterSave.php';
 		$className = 'InvExtrasAfterSave';
 		$em->registerHandler($eventName, $filePath, $className);		
