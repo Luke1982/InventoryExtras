@@ -128,7 +128,7 @@ Class InventoryExtras {
 		$this->doAddInvDetBlockAndFields();
 		$this->doAddProdFields();
 		$this->doAddSoFields();
-		$this->doCreateInvDetAfterSaveHandler();
+		$this->doCreateInvDetAfterSaveHandlers();
 		$this->doUpdateLangFiles();
 		$this->doAddProductInOrderOnWidget();
 		$this->doCreateWorkflowFunction();
@@ -320,14 +320,21 @@ Class InventoryExtras {
 		$moduleInstance->deleteLink('HEADERSCRIPT', 'InventoryExtrasHeaderScript', 'modules/InventoryExtras/InventoryExtras.js');
 	}
 
-	private function doCreateInvDetAfterSaveHandler() {
+	private function doCreateInvDetAfterSaveHandlers() {
 		global $adb;
 		require 'include/events/include.inc';
+
 		$em = new VTEventsManager($adb);
 		$eventName = 'vtiger.entity.aftersave.first';
+		$filePath = 'modules/InventoryExtras/handlers/InvExtrasAfterSaveFirst.php';
+		$className = 'InvExtrasAfterSaveFirst';
+		$em->registerHandler($eventName, $filePath, $className);
+
+		$em = new VTEventsManager($adb);
+		$eventName = 'vtiger.entity.aftersave';
 		$filePath = 'modules/InventoryExtras/handlers/InvExtrasAfterSave.php';
 		$className = 'InvExtrasAfterSave';
-		$em->registerHandler($eventName, $filePath, $className);		
+		$em->registerHandler($eventName, $filePath, $className);
 	}
 
 	private function doAddProductInOrderOnWidget() {

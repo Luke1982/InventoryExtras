@@ -13,13 +13,63 @@
 * permissions and limitations under the License. You may obtain a copy of the License
 * at <http://corebos.org/documentation/doku.php?id=en:devel:vpl11>
 *************************************************************************************************/
-Class InvExtrasAfterSave extends VTEventHandler {
+Class InvExtrasAfterSaveFirst extends VTEventHandler {
 	public function handleEvent($eventName, $entityData){
 		global $current_user, $adb;
 
 		$moduleName = $entityData->getModuleName();
-		if ($moduleName == 'SalesOrder' && $_REQUEST['action'] == 'SalesOrderAjax' && $_REQUEST['file'] == 'DetailViewAjax') {
+		if ($moduleName == 'InventoryDetails') {
+			require_once 'modules/InventoryExtras/InventoryExtras.php';
 
+			$invdet_id = $entityData->getId();
+			$invdet_data = $entityData->getData();
+			$invext = new InventoryExtras();
+			$invext_prefix = $invext->getPrefix();
+
+			$related_type = getSalesEntityType($invdet_data['related_to']);
+			$related_item = getSalesEntityType($invdet_data['productid']);
+
+			if ($related_item == 'Products') {
+
+				if ($related_type == 'Invoice') {
+
+					$sibl = $invext->getSiblingFromInvoice($invdet_data['related_to'], $invdet_data['productid']);
+					if (!!$sibl) {
+						if ($invdet_data[$invext_prefix . 'so_sibling'] == '0' || $invdet_data[$invext_prefix . 'so_sibling'] == '') {
+							// This is an invoice line and no related salesorder line has been set yet
+							$adb->pquery("UPDATE vtiger_inventorydetails SET {$invext_prefix}so_sibling = ? 
+								          WHERE inventorydetailsid = ?", array((int)$sibl['id'], $invdet_id));
+						}
+						$qty_invoiced = $invext->getInvoiceQtysFromSoLine($sibl['id']);
+						$invext->updateInvDetRec($sibl['id'], $sibl['quantity'], 0, $qty_invoiced, false, 'invoiced');
+					}
+
+				} else if ($related_type == 'SalesOrder') {
+
+					if ($invext->getInvoiceQtysFromSoLine($invdet_id) == 0) {
+						// There were no invoice lines related to this salesorder line
+						$invext->updateInvDetRec($invdet_id, $invdet_data['quantity'], 0, 0, true, 'invoiced');
+					} else {
+						// There were invoice lines found, update to be sure
+						$qty_delivered = $invext->getInvoiceQtysFromSoLine($invdet_id);
+						$invext->updateInvDetRec($invdet_id, $invdet_data['quantity'], 0, $qty_delivered, true, 'invoiced');
+					}
+					$qty_in_order_tot = $invext->getQtyInOrderByProduct($invdet_data['productid']);					
+					$invext->updateProductQtyInOrder($invdet_data['productid'], $qty_in_order_tot, $invext_prefix . 'prod_qty_in_order', $related_type);
+
+				} else if ($related_type == 'PurchaseOrder') {
+
+					$qty_in_backord_tot = $invext->getTotalInBackOrder($invdet_data['productid']);
+					$invext->updateProductQtyInOrder($invdet_data['productid'], $qty_in_backord_tot, 'qtyindemand');
+
+				}
+
+			}
+
+		} else if ($moduleName == 'SalesOrder' && $_REQUEST['action'] == 'SalesOrderAjax' && $_REQUEST['file'] == 'DetailViewAjax') {
+
+			// Inventorydetails lines don't get saved when a related record (SO, PO, etc) is edited inline. Therefor the code above
+			// won't work. We need to catch some events here that we know could affect our calculations
 			global $adb, $current_user;
 			require_once 'modules/InventoryDetails/InventoryDetails.php';
 			require_once 'data/VTEntityDelta.php';		
