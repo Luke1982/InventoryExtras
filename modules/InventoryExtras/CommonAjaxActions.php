@@ -23,8 +23,8 @@ switch ($_REQUEST['function']) {
 }
 
 function getInfoByProduct($product_id, $record_id, $seq) {
-	global $adb
-	;
+	global $adb;
+	
 	require_once 'modules/InventoryExtras/InventoryExtras.php';
 	require_once 'include/fields/CurrencyField.php';
 
@@ -40,9 +40,12 @@ function getInfoByProduct($product_id, $record_id, $seq) {
 
 	$invdet_info = $adb->fetch_array($adb->pquery("SELECT SUM(invextras_qty_invoiced) AS qty_invoiced 
 		                                           FROM vtiger_inventorydetails 
+                                                   INNER JOIN vtiger_crmentity 
+                                                   ON vtiger_inventorydetails.inventorydetailsid = vtiger_crmentity.crmid 
 		                                           WHERE related_to = ? 
 		                                           AND sequence_no = ? 
-		                                           AND productid = ?", array($record_id, $seq, $product_id)));
+		                                           AND productid = ? 
+		                                           AND vtiger_crmentity.deleted = ?", array($record_id, $seq, $product_id, 0)));
 
 	if ($adb->num_rows($r) > 0) {
 		$data = $adb->fetch_array($r);
