@@ -560,11 +560,13 @@ Class InventoryExtras {
                                 vtiger_salesorder INNER JOIN vtiger_inventorydetails 
                                 ON vtiger_salesorder.salesorderid = vtiger_inventorydetails.related_to 
                                 WHERE vtiger_inventorydetails.inventorydetailsid = ? LIMIT 1) != ? 
+                           AND (SELECT vtiger_inventorydetails.productid FROM vtiger_inventorydetails 
+                                WHERE vtiger_inventorydetails.inventorydetailsid = ? LIMIT 1) = vtiger_inventorydetails.productid 
                            AND crment_inv.deleted = ? 
-                           AND crment_invdet.deleted = ?", array($so_line_id, $so_line_id, 1, 0, 0));
+                           AND crment_invdet.deleted = ?", array($so_line_id, $so_line_id, 1, $so_line_id, 0, 0));
 		return $adb->num_rows($r) > 0 ? $adb->fetch_array($r)['qty'] : 0;
 	}
-
+	
 	public function getQtyInOrderByProduct($productid) {
 		global $adb;
 		$r = $adb->pquery("SELECT SUM(vtiger_inventorydetails.{$this->prefix}qty_in_order) AS qty FROM vtiger_inventorydetails 
