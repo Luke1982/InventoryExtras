@@ -633,11 +633,15 @@ Class InventoryExtras {
 		unset($_REQUEST['ajxaction']);
 		$p->column_fields = DataTransform::sanitizeRetrieveEntityInfo($p->column_fields, $meta);
 
+		$ajxaction_holder = $_REQUEST['ajxaction'];
+		$_REQUEST['ajxaction'] = 'Workflow';		
+
 		if (file_exists('modules/ExactOnline/ExactOnline.php')) {
 			$p->saveentity('Products');
 		} else {
 			$p->save('Products');
 		}
+		$_REQUEST['ajxaction'] = $ajxaction_holder;
 	}
 
 
