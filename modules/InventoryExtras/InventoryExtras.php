@@ -535,11 +535,17 @@ Class InventoryExtras {
 		$meta = $handler->getMeta();
 		$id->column_fields = DataTransform::sanitizeRetrieveEntityInfo($id->column_fields, $meta);
 
+		// Make sure no ajax action is set to prevent CRMEntity from NOT converting to DB format
+		$hold_ajxaction = isset($_REQUEST['ajxaction']) ? $_REQUEST['ajxaction'] : '';
+		unset($_REQUEST['ajxaction']);		
+
 		if ($saveentity) {
 			$id->saveentity('InventoryDetails');
 		} else {
 			$id->save('InventoryDetails');
 		}
+
+		$_REQUEST['ajxaction'] = $hold_ajxaction;
 	}
 
 	public function getInvDetQtyById($id) {
