@@ -71,8 +71,13 @@ Class InvExtrasAfterSave extends VTEventHandler {
 				$r = $adb->pquery("SELECT vtiger_inventorydetails.productid FROM vtiger_inventorydetails 
 					               INNER JOIN vtiger_crmentity ON 
 					               vtiger_inventorydetails.inventorydetailsid = vtiger_crmentity.crmid 
+								   INNER JOIN vtiger_crmentity crment_pr ON
+								   vtiger_inventorydetails.productid = crment_pr.crmid
+								   INNER JOIN vtiger_products ON
+								   vtiger_inventorydetails.productid = vtiger_products.productid
 					               WHERE vtiger_inventorydetails.related_to = ? 
-					               AND vtiger_crmentity.deleted = ?", array($po_id, 0));
+								   AND vtiger_crmentity.deleted = ?
+								   AND crment_pr.deleted = ?", array($po_id, 0, 0));
 
 				while ($prod = $adb->fetch_array($r)) {
 					$qty_in_backord_tot = $invext->getTotalInBackOrder($prod['productid']);
