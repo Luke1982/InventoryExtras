@@ -74,11 +74,12 @@ Class InvExtrasAfterSaveFirst extends VTEventHandler {
 			require_once 'modules/InventoryDetails/InventoryDetails.php';
 			require_once 'data/VTEntityDelta.php';		
 
+			$delta_manager = new VTEntityDelta();
 			$so_id = $entityData->getId();
 			$so_data = $entityData->getData();
-			$delta = VTEntityDelta::getEntityDelta('SalesOrder', $entityData->getId());
+			$delta = $delta_manager->getEntityDelta('SalesOrder', $entityData->getId());
 
-			if (array_key_exists('invextras_so_no_stock_change', $delta)) {
+			if ($delta && array_key_exists('invextras_so_no_stock_change', $delta)) {
 				// Only fire when so_no_stock_change checkbox was altered
 				$r = $adb->pquery("SELECT vtiger_inventorydetails.inventorydetailsid AS id FROM vtiger_inventorydetails 
 					               INNER JOIN vtiger_crmentity ON 
@@ -110,11 +111,12 @@ Class InvExtrasAfterSaveFirst extends VTEventHandler {
 			require_once 'data/VTEntityDelta.php';		
 
 			$invext = new InventoryExtras();
+			$delta_manager = new VTEntityDelta();
 			$po_id = $entityData->getId();
 			$po_data = $entityData->getData();
-			$delta = VTEntityDelta::getEntityDelta('PurchaseOrder', $entityData->getId());
+			$delta = $delta_manager->getEntityDelta('PurchaseOrder', $entityData->getId());
 
-			if (array_key_exists('postatus', $delta)) {
+			if ($delta && array_key_exists('postatus', $delta)) {
 				// Only fire when postatus was altered
 				$r = $adb->pquery("SELECT vtiger_inventorydetails.productid FROM vtiger_inventorydetails 
 					               INNER JOIN vtiger_crmentity ON 
@@ -127,7 +129,6 @@ Class InvExtrasAfterSaveFirst extends VTEventHandler {
 					$invext->updateProductQtyInOrder($prod['productid'], $qty_in_backord_tot, 'qtyindemand');
 				}
 			}
-			
 		}
 	}
 }
