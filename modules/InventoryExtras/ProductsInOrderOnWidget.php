@@ -29,7 +29,8 @@ $r = $adb->pquery("SELECT vtiger_inventorydetails.invextras_qty_in_order AS qty,
 						  AND vtiger_inventorydetails.invextras_qty_in_order IS NOT NULL 
 						  AND vtiger_inventorydetails.invextras_qty_in_order != ?
 						  AND (vtiger_salesorder.invextras_so_no_stock_change = ? OR 
-                               vtiger_salesorder.invextras_so_no_stock_change IS NULL)", array($_REQUEST['record'], 0, 0, 0, 0));
+							   vtiger_salesorder.invextras_so_no_stock_change IS NULL)
+						  AND vtiger_salesorder.sostatus != ?", array($_REQUEST['record'], 0, 0, 0, 0, 'Cancelled'));
 
 $lines = array();
 while ($line = $adb->fetch_array($r)) {
