@@ -283,6 +283,7 @@ Class InventoryExtras {
 		require_once 'vtlib/Vtiger/Module.php';
 		require_once 'vtlib/Vtiger/Block.php';
 		require_once 'vtlib/Vtiger/Field.php';
+		require 'include/events/include.inc';
 
 		$mod = Vtiger_Module::getInstance('InventoryDetails');
 		$blk = Vtiger_Block::getInstance('LBL_INVDET_SO_INFO', $mod);
@@ -318,6 +319,10 @@ Class InventoryExtras {
 		$moduleInstance->deleteLink('DETAILVIEWWIDGET', 'LBL_PRODUCT_IN_BACKORDER_ON', 'module=InventoryExtras&action=InventoryExtrasAjax&file=ProductsInBackOrderOnWidget&return_module=$MODULE$&record=$RECORD$');
 		$moduleInstance = Vtiger_Module::getInstance('InventoryExtras');
 		$moduleInstance->deleteLink('HEADERSCRIPT', 'InventoryExtrasHeaderScript', 'modules/InventoryExtras/InventoryExtras.js');
+
+		$em = new VTEventsManager($adb);
+		$em->unregisterHandler('InvExtrasAfterSaveFirst');
+		$em->unregisterHandler('InvExtrasAfterSave');
 	}
 
 	private function doCreateInvDetAfterSaveHandlers() {
