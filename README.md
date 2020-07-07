@@ -40,6 +40,8 @@ It will install a workflow that allows you to create a custom workflow task. Thi
 ## When will it do it?
 You need to have a coreBOS installation that is more recent than mid-december 2018. This module takes use of the new aftersave.first event which was introduced then. The reason behind this is mainly that it will launch before workflows this way. This is because we want to set some calculated fields (like total quantity in order in products) and probably use a workflow directly after that, that uses that newly set value on the product.
 
+When a line is deleted in a salesorder, the module will look for invoice lines that referenced that salesorder line and remove the reference. After that, it'll force another `aftersave.first` on that invoice line. That way, when you remove a line in a salesorder and replace it with a new line with the same product, the reference is updated.
+
 ## Enhance lines in SalesOrders and PurchaseOrders
 Some additional information will be added to the 'Information' column in inventory lines when in SalesOrders and PurchaseOrders:
 #### In SalesOrders

@@ -121,6 +121,7 @@ Class InventoryExtras {
 		} else if($event_type == 'module.postupdate') {
 			// TODO Handle actions after this module is updated.
 			$this->doInstallcbUpdates();
+			$this->doInstallAfterDeleteHandler();
 		}
 	}
 
@@ -339,6 +340,17 @@ Class InventoryExtras {
 		$eventName = 'vtiger.entity.aftersave';
 		$filePath = 'modules/InventoryExtras/handlers/InvExtrasAfterSave.php';
 		$className = 'InvExtrasAfterSave';
+		$em->registerHandler($eventName, $filePath, $className);
+	}
+
+	private function doInstallAfterDeleteHandler() {
+		global $adb;
+		require 'include/events/include.inc';
+
+		$em = new VTEventsManager($adb);
+		$eventName = 'vtiger.entity.afterdelete';
+		$filePath = 'modules/InventoryExtras/handlers/InvExtrasAfterDelete.php';
+		$className = 'InvExtrasAfterDelete';
 		$em->registerHandler($eventName, $filePath, $className);
 	}
 
@@ -652,5 +664,42 @@ Class InventoryExtras {
 		if (isset($_REQUEST['ajxaction'])) {
 			$_REQUEST['ajxaction'] = $ajxaction_holder;
 		}
+	}
+
+	/*
+	 * Take a salesorder inventoryline ID and see
+	 * if there are any invoicelines that have no
+	 * related salesorder ID but should have
+	 *
+	 */
+	public function getPotentialInvoiceLinesFor($invdet_line_id) {
+		global $adb;
+		$potentials = array();
+		$r = $adb->pquery("SELECT inventorydetailsid FROM vtiger_inventorydetails
+						INNER JOIN vtiger_crmentity crment
+						ON vtiger_inventorydetails.inventorydetailsid = crment.crmid
+						WHERE vtiger_inventorydetails.productid IN (
+							SELECT vtiger_inventorydetails.productid FROM vtiger_inventorydetails
+							WHERE vtiger_inventorydetails.inventorydetailsid = ?
+						)
+						AND vtiger_inventorydetails.related_to IN (
+							SELECT vtiger_invoice.invoiceid FROM vtiger_invoice
+							INNER JOIN vtiger_salesorder ON vtiger_salesorder.salesorderid = vtiger_invoice.salesorderid
+							INNER JOIN vtiger_inventorydetails ON vtiger_inventorydetails.related_to = vtiger_salesorder.salesorderid
+							WHERE vtiger_inventorydetails.inventorydetailsid = ?
+						)
+						AND (
+							vtiger_inventorydetails.invextras_so_sibling IS NULL
+							OR vtiger_inventorydetails.invextras_so_sibling = ?
+						)
+						AND crment.deleted = ?", array($invdet_line_id, $invdet_line_id, 0, 0));
+		if ($adb->num_rows($r) > 0) {
+			while ($row = $adb->fetch_array($r)) {
+				$potentials[] = $row['inventorydetailsid'];
+			}
+		} else {
+			$potentials = false;
+		}
+		return $potentials;
 	}
 }

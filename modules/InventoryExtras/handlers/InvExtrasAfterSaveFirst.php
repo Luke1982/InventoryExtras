@@ -46,6 +46,15 @@ Class InvExtrasAfterSaveFirst extends VTEventHandler {
 
 				} else if ($related_type == 'SalesOrder') {
 
+					$pot_inv_lines = $invext->getPotentialInvoiceLinesFor($invdet_id);
+					if (!!$pot_inv_lines) {
+						foreach ($pot_inv_lines as $invoicelineid) {
+							$adb->pquery("UPDATE vtiger_inventorydetails SET invextras_so_sibling = ? WHERE inventorydetailsid = ?", array($invdet_id, $invoicelineid));
+							$em = new VTEventsManager($adb);
+							$invoicelineData = VTEntityData::fromEntityId($adb, $invoicelineid);
+							$em->triggerEvent('vtiger.entity.aftersave.first', $invoicelineData);
+						}
+					}
 					if ($invext->getInvoiceQtysFromSoLine($invdet_id) == 0) {
 						// There were no invoice lines related to this salesorder line
 						$invext->updateInvDetRec($invdet_id, $invdet_data['quantity'], 0, 0, true, 'invoiced');
