@@ -71,7 +71,10 @@ function setPoCells(stockCell, stockInfo, qtyCell) {
 
 	var qtyToOrderSpan = document.createElement("SPAN");
 	qtyToOrderSpan.innerHTML = "<br /><b>" + stockInfo.qtytoorder.label + ":&nbsp;</b>" + stockInfo.qtytoorder.value;
-	stockCell.appendChild(qtyToOrderSpan);	
+	stockCell.appendChild(qtyToOrderSpan);
+
+	stockCell.removeChild(stockCell.childNodes[2])
+	stockCell.removeChild(stockCell.childNodes[1])
 }
 
 window.addEventListener("load", appendInvExtraInfo);
