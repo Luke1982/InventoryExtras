@@ -29,6 +29,28 @@ Class InvExtrasAfterSaveFirst extends VTEventHandler {
 			$related_type = getSalesEntityType($invdet_data['related_to']);
 			$related_item = getSalesEntityType($invdet_data['productid']);
 
+			if ($related_type == 'Invoice') {
+				$r = $adb->pquery(
+					"UPDATE vtiger_inventorydetails
+						INNER JOIN vtiger_inventorydetails AS invdet_so
+						ON vtiger_inventorydetails.invextras_so_sibling = invdet_so.inventorydetailsid
+						SET vtiger_inventorydetails.invextras_so_sibling = 0
+						WHERE vtiger_inventorydetails.productid != invdet_so.productid
+						AND vtiger_inventorydetails.inventorydetailsid = ?",
+					array($invdet_id)
+				);
+
+				if ($adb->getAffectedRowCount($r) > 0) {
+					// This line used to be connected to a SO-line, but the product changed,
+					// we need to re-calculate the SO-line to reflect that
+					$so_invdet_id = $invdet_data[$invext_prefix. 'so_sibling'];
+					$qty_invoiced = $invext->getInvoiceQtysFromSoLine($so_invdet_id);
+					$so_line_qty = $adb->query_result($adb->query("SELECT quantity FROM vtiger_inventorydetails WHERE inventorydetailsid = {$so_invdet_id}"), 0, 'quantity');
+					$invext->updateInvDetRec($so_invdet_id, $so_line_qty, 0, $qty_invoiced, false, 'invoiced');
+					return;
+				}
+			}
+
 			if ($related_item == 'Products') {
 
 				if ($related_type == 'Invoice') {
