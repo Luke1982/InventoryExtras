@@ -37,6 +37,9 @@ When an inventorydetails line is saved, the module will look for all lines that 
 ### Update all lines when a PurchaseOrder is marked as received
 It will install a workflow that allows you to create a custom workflow task. This task will alter all the inventorydetails records related to this record (you could tie in to any module that has inventorydetails). The alteration will be that all the units delivered/received will be set equal to the quantity of the line. That way you could make a single purchaseorder as 'Goods Received' and have all the lines be set equal to their quantity's in the units delivered/received field, which will fire related events, like create inventorymutations or the aftersave events on this module.
 
+### Check the Invoice lines on every save
+When you invoice something, but then decide you made an error and change the product on that invoiceline, the reference that invoiceline carries to the salesorder-line will no longer be correct. The invoicelines are checked on every save to see if their link is still relevant. When it is not, the reference is removed and the salesorder-line it was referring to is re-calculated so it reflects the most recent state.
+
 ## When will it do it?
 You need to have a coreBOS installation that is more recent than mid-december 2018. This module takes use of the new aftersave.first event which was introduced then. The reason behind this is mainly that it will launch before workflows this way. This is because we want to set some calculated fields (like total quantity in order in products) and probably use a workflow directly after that, that uses that newly set value on the product.
 
