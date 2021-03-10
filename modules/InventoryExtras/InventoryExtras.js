@@ -63,15 +63,27 @@ function setSoStockCell(stockCell, stockInfo) {
 }
 
 function setPoCells(stockCell, stockInfo, qtyCell) {
-	console.log(stockInfo);
-	
-	var venPartNoSpan = document.createElement("SPAN");
-	venPartNoSpan.innerHTML = "<br /><b>" + stockInfo.venpartno.label + ":&nbsp;</b>" + stockInfo.venpartno.value;
-	stockCell.appendChild(venPartNoSpan);
-
-	var qtyToOrderSpan = document.createElement("SPAN");
-	qtyToOrderSpan.innerHTML = "<br /><b>" + stockInfo.qtytoorder.label + ":&nbsp;</b>" + stockInfo.qtytoorder.value;
-	stockCell.appendChild(qtyToOrderSpan);
+	let tmp = document.createElement("DIV")
+	let html = `
+		<table>
+			<tbody>
+				<tr>
+					<td valign="top"><b>${stockInfo.glaccount.label}</b></td>
+					<td valign="top">${stockInfo.glaccount.value}</td>
+				</tr>
+				<tr>
+					<td valign="top"><b>${stockInfo.venpartno.label}</b></td>
+					<td valign="top">${stockInfo.venpartno.value}</td>
+				</tr>
+				<tr>
+					<td valign="top"><b>${stockInfo.qtytoorder.label}</b></td>
+					<td valign="top">${stockInfo.qtytoorder.value}</td>
+				</tr>
+			</tbody>
+		</table>
+	`
+	tmp.innerHTML = html
+	stockCell.appendChild(tmp.children[0])
 
 	stockCell.removeChild(stockCell.childNodes[2])
 	stockCell.removeChild(stockCell.childNodes[1])

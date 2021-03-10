@@ -35,7 +35,8 @@ function getInfoByProduct($product_id, $record_id, $seq) {
 		                      {$invext_prefix}prod_stock_avail AS stockavail, 
 		                      {$invext_prefix}prod_qty_to_order AS qtytoorder, 
 		                      qtyindemand, 
-		                      vendor_part_no 
+		                      vendor_part_no,
+							  generalledgers
 		               FROM vtiger_products WHERE productid = ?", array($product_id));
 
 	$invdet_info = $adb->fetch_array($adb->pquery("SELECT SUM(invextras_qty_invoiced) AS qty_invoiced 
@@ -62,6 +63,7 @@ function getInfoByProduct($product_id, $record_id, $seq) {
 		$stock_avail_lab = getTranslatedString($invext_prefix . 'prod_stock_avail', 'Products');
 		$qty_to_order_lab = getTranslatedString($invext_prefix . 'prod_qty_to_order', 'Products');
 		$ven_part_no_lab = getTranslatedString('Vendor PartNo', 'Products');
+		$gl_account_lab = getTranslatedString('GL Account', 'Products');
 		
 		echo json_encode(array(
 			'qtyinorder' => array(
@@ -81,7 +83,11 @@ function getInfoByProduct($product_id, $record_id, $seq) {
 			    'value' => $data['vendor_part_no']),
 			'qtyinvoiced' => array(
 				'label' => $qty_invoiced_lab,
-			    'value' => $qty_invoiced),
+				'value' => $qty_invoiced),
+			'glaccount' => array(
+				'label' => $gl_account_lab,
+				'value' => $data['generalledgers']
+			)
 			)
 		);
 	} else {

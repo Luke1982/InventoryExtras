@@ -4,7 +4,7 @@
 	<name>InventoryExtras</name>
 	<label>Extends some inventory functionality (https://github.com/Luke1982/InventoryExtras)</label>
 	<parent>Tools</parent>
-	<version>0.4</version>
+	<version>0.5</version>
 	<dependencies>
 		<vtiger_version>7.0.0</vtiger_version>
 		<vtiger_max_version>8.*</vtiger_max_version>
@@ -26,7 +26,7 @@
 			* at <http://corebos.org/documentation/doku.php?id=en:devel:vpl11>
 			********************************************************************************
 			*  Module       : coreBOS InventoryExtras
-			*  Version      : 0.4
+			*  Version      : 0.5
 			*  Author       : MajorLabel
 			********************************************************************************]]></inline>
 		</license>
