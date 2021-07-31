@@ -644,6 +644,11 @@ Class InventoryExtras {
 			// Recalculate available stock
 			$p->column_fields[$this->prefix . 'prod_stock_avail'] = (float)$p->column_fields['qtyinstock'] - (float)$qty_in_order;			
 		}
+		if ($source_mod == 'PurchaseOrder' && file_exists('modules/ExactOnline/ExactOnline.php')) {
+			// Make sure the 'prod_qty_to_order' field is altered
+			$p->column_fields[$this->prefix . 'prod_qty_to_order'] = ((float)$qty_in_order + (float)$p->column_fields['reorderlevel'])
+				- ((float)$p->column_fields['qtyinstock'] + (float)$p->column_fields['qtyindemand']);
+		}
 
 		$handler = vtws_getModuleHandlerFromName('Products', $current_user);
 		$meta = $handler->getMeta();

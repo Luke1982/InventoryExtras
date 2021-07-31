@@ -91,7 +91,7 @@ Class InvExtrasAfterSaveFirst extends VTEventHandler {
 				} else if ($related_type == 'PurchaseOrder') {
 
 					$qty_in_backord_tot = $invext->getTotalInBackOrder($invdet_data['productid']);
-					$invext->updateProductQtyInOrder($invdet_data['productid'], $qty_in_backord_tot, 'qtyindemand');
+					$invext->updateProductQtyInOrder($invdet_data['productid'], $qty_in_backord_tot, 'qtyindemand', 'PurchaseOrder');
 
 				}
 
