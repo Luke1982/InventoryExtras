@@ -36,8 +36,17 @@ function getInfoByProduct($product_id, $record_id, $seq) {
 		                      {$invext_prefix}prod_qty_to_order AS qtytoorder, 
 		                      qtyindemand, 
 		                      vendor_part_no,
-							  generalledgers
-		               FROM vtiger_products WHERE productid = ?", array($product_id));
+							  generalledgers,
+							  'Products' AS setype
+					   FROM vtiger_products WHERE productid = ?
+					UNION SELECT '' AS qtyinorder,
+						'' AS stockavail,
+						'' AS qtytoorder,
+						'' AS qtyindemand,
+						'' AS vendor_part_no,
+						generalledgers,
+						'Services' AS setype
+					FROM vtiger_service WHERE serviceid = ?", array($product_id, $product_id));
 
 	$invdet_info = $adb->fetch_array($adb->pquery("SELECT SUM(invextras_qty_invoiced) AS qty_invoiced 
 		                                           FROM vtiger_inventorydetails 
@@ -86,8 +95,8 @@ function getInfoByProduct($product_id, $record_id, $seq) {
 				'value' => $qty_invoiced),
 			'glaccount' => array(
 				'label' => $gl_account_lab,
-				'value' => $data['generalledgers']
-			)
+				'value' => $data['generalledgers']),
+			'setype' => $data['setype']
 			)
 		);
 	} else {

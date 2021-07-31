@@ -64,6 +64,19 @@ function setSoStockCell(stockCell, stockInfo) {
 
 function setPoCells(stockCell, stockInfo, qtyCell) {
 	let tmp = document.createElement("DIV")
+	let stockrowsHTML = ''
+	if (stockInfo.setype === 'Products') {
+		stockrowsHTML = `
+		<tr>
+			<td valign="top"><b>${stockInfo.venpartno.label}</b></td>
+			<td valign="top">${stockInfo.venpartno.value}</td>
+		</tr>
+		<tr>
+			<td valign="top"><b>${stockInfo.qtytoorder.label}</b></td>
+			<td valign="top">${stockInfo.qtytoorder.value}</td>
+		</tr>
+		`
+	}
 	let html = `
 		<table>
 			<tbody>
@@ -71,14 +84,7 @@ function setPoCells(stockCell, stockInfo, qtyCell) {
 					<td valign="top"><b>${stockInfo.glaccount.label}</b></td>
 					<td valign="top">${stockInfo.glaccount.value}</td>
 				</tr>
-				<tr>
-					<td valign="top"><b>${stockInfo.venpartno.label}</b></td>
-					<td valign="top">${stockInfo.venpartno.value}</td>
-				</tr>
-				<tr>
-					<td valign="top"><b>${stockInfo.qtytoorder.label}</b></td>
-					<td valign="top">${stockInfo.qtytoorder.value}</td>
-				</tr>
+				${stockrowsHTML}
 			</tbody>
 		</table>
 	`
