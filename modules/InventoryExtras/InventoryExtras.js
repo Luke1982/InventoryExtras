@@ -41,10 +41,6 @@ function appendCells(sourceRecId, recordId, stockCell, qtyCell, seq) {
 }
 
 function setSoStockCell(stockCell, stockInfo) {
-	var qtyInvoicedSpan = document.createElement("SPAN");
-	qtyInvoicedSpan.innerHTML = "<br /><b>" + stockInfo.qtyinvoiced.label + ":&nbsp;</b>" + stockInfo.qtyinvoiced.value;
-	stockCell.appendChild(qtyInvoicedSpan);
-		
 	var stockAvailSpan = document.createElement("SPAN");
 	stockAvailSpan.innerHTML = "<br /><b>" + stockInfo.stockavail.label + ":&nbsp;</b>" + stockInfo.stockavail.value;
 	stockCell.appendChild(stockAvailSpan);

@@ -1,17 +1,3 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <updatesChangeLog>
-<changeSet>
-	<author>MajorLabel</author>
-	<description>Installed with InventoryExtras. Saves all invoices once to start off the update process of all no.'s in order</description>
-	<filename>modules/InventoryExtras/cbupdates/updateNosInOrder.php</filename>
-	<classname>updateNosInOrder</classname>
-	<systemupdate>false</systemupdate>
-</changeSet>
-<changeSet>
-	<author>MajorLabel</author>
-	<description>Installed with InventoryExtras. Updates all quantity's in demand in Products</description>
-	<filename>modules/InventoryExtras/cbupdates/updateQtysInDemand.php</filename>
-	<classname>updateQtysInDemand</classname>
-	<systemupdate>false</systemupdate>
-</changeSet>
 </updatesChangeLog>

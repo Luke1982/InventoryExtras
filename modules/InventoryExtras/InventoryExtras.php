@@ -121,15 +121,14 @@ Class InventoryExtras {
 		} else if($event_type == 'module.postupdate') {
 			// TODO Handle actions after this module is updated.
 			$this->doInstallcbUpdates();
-			$this->doInstallAfterDeleteHandler();
+			$this->doRemoveInvExtrasBlockInInvendet();
+			$this->removeInvenExtrasEventHandlers();
 		}
 	}
 
 	private function doPostInstall() {
-		$this->doAddInvDetBlockAndFields();
 		$this->doAddProdFields();
 		$this->doAddSoFields();
-		$this->doCreateInvDetAfterSaveHandlers();
 		$this->doUpdateLangFiles();
 		$this->doAddProductInOrderOnWidget();
 		$this->doCreateWorkflowFunction();
@@ -138,59 +137,6 @@ Class InventoryExtras {
 		$this->doInstallcbUpdates();
 	}
 
-	private function doAddInvDetBlockAndFields() {
-		require_once 'vtlib/Vtiger/Module.php';
-		require_once 'vtlib/Vtiger/Block.php';
-		require_once 'vtlib/Vtiger/Field.php';
-
-		$mod = Vtiger_Module::getInstance('InventoryDetails');
-		$blk = new Vtiger_Block();
-
-		$blk->label = 'LBL_INVDET_SO_INFO';
-		$blk->save($mod);
-
-		$fld = new Vtiger_Field();
-		$fld->name  = $this->prefix . 'qty_in_order';
-		$fld->table = 'vtiger_inventorydetails';
-		$fld->column = $this->prefix . 'qty_in_order';
-		$fld->columntype = 'DECIMAL(28,3)';
-		$fld->helpinfo = 'LBL_HELP_ID_QTY_IN_ORDER';
-		$fld->uitype = 7;
-		$fld->typeofdata = 'NN~O';
-		$fld->presence = 0;
-		$fld->displaytype = 1;
-		$fld->masseditable = 0;
-
-		$blk->addField($fld);
-
-		$fld = new Vtiger_Field();
-		$fld->name  = $this->prefix . 'qty_invoiced';
-		$fld->table = 'vtiger_inventorydetails';
-		$fld->column = $this->prefix . 'qty_invoiced';
-		$fld->columntype = 'DECIMAL(28,3)';
-		$fld->helpinfo = 'LBL_HELP_ID_QTY_INVOICED';
-		$fld->uitype = 7;
-		$fld->typeofdata = 'NN~O';
-		$fld->presence = 0;
-		$fld->displaytype = 1;
-		$fld->masseditable = 0;
-
-		$blk->addField($fld);
-
-		$fld = new Vtiger_Field();
-		$fld->name  = $this->prefix . 'so_sibling';
-		$fld->table = 'vtiger_inventorydetails';
-		$fld->column = $this->prefix . 'so_sibling';
-		$fld->columntype = 'INT(11)';
-		$fld->helpinfo = 'LBL_HELP_ID_SO_SIBLING';
-		$fld->uitype = 10;
-		$fld->typeofdata = 'I~O';
-		$fld->displaytype = 1;
-		$fld->masseditable = 0;
-
-		$blk->addField($fld);
-		$fld->setRelatedModules('InventoryDetails');
-	}
 
 	private function doAddProdFields() {
 		require_once 'vtlib/Vtiger/Module.php';
@@ -326,32 +272,38 @@ Class InventoryExtras {
 		$em->unregisterHandler('InvExtrasAfterSave');
 	}
 
-	private function doCreateInvDetAfterSaveHandlers() {
+	/**
+	 * Remove special InventoryExtras block in InventoryDetails
+	 * together with its fields
+	 *
+	 * @param  Null
+	 * @return void
+	 */
+	private function doRemoveInvExtrasBlockInInvendet() : void {
 		global $adb;
-		require 'include/events/include.inc';
-
-		$em = new VTEventsManager($adb);
-		$eventName = 'vtiger.entity.aftersave.first';
-		$filePath = 'modules/InventoryExtras/handlers/InvExtrasAfterSaveFirst.php';
-		$className = 'InvExtrasAfterSaveFirst';
-		$em->registerHandler($eventName, $filePath, $className);
-
-		$em = new VTEventsManager($adb);
-		$eventName = 'vtiger.entity.aftersave';
-		$filePath = 'modules/InventoryExtras/handlers/InvExtrasAfterSave.php';
-		$className = 'InvExtrasAfterSave';
-		$em->registerHandler($eventName, $filePath, $className);
+		$mod = Vtiger_Module::getInstance('InventoryDetails');
+		$blk = Vtiger_Block::getInstance('LBL_INVDET_SO_INFO', $mod);
+		if ($blk !== false) {
+			$blk->delete(true);
+			$adb->query("ALTER TABLE vtiger_inventorydetails DROP COLUMN " . $this->prefix . "so_sibling, DROP COLUMN " . $this->prefix . "qty_in_order");
+			$adb->query("ALTER TABLE vtiger_inventorydetails DROP COLUMN " . $this->prefix . "qty_invoiced");
+		}
 	}
 
-	private function doInstallAfterDeleteHandler() {
+	/**
+	 * Remove handler references in database
+	 *
+	 * @param  Null
+	 * @return void
+	 */
+	private function removeInvenExtrasEventHandlers() : void {
 		global $adb;
 		require 'include/events/include.inc';
 
 		$em = new VTEventsManager($adb);
-		$eventName = 'vtiger.entity.afterdelete';
-		$filePath = 'modules/InventoryExtras/handlers/InvExtrasAfterDelete.php';
-		$className = 'InvExtrasAfterDelete';
-		$em->registerHandler($eventName, $filePath, $className);
+		$em->unregisterHandler('InvExtrasAfterSaveFirst');
+		$em->unregisterHandler('InvExtrasAfterSave');
+		$em->unregisterHandler('InvExtrasAfterDelete');
 	}
 
 	private function doAddProductInOrderOnWidget() {
@@ -425,187 +377,8 @@ Class InventoryExtras {
 		}
 	}
 
-	private function createInventoryMutation($column_fields) {
-		if ($column_fields['units_delrec_mutated'] != 0) {
-			global $current_user;
-			require_once 'modules/InventoryMutations/InventoryMutations.php';
-			$im = new InventoryMutations();
-			$im->mode = 'create';
-
-			$im->column_fields['units_delrec_before'] = $column_fields['units_delrec_before'];
-			$im->column_fields['units_delrec_mutated'] = $column_fields['units_delrec_mutated'];
-			$im->column_fields['units_delrec_after'] = $column_fields['units_delrec_after'];
-			$im->column_fields['invmut_inventorydetails_id'] = $column_fields['invmut_inventorydetails_id'];
-			$im->column_fields['invmut_source_id'] = $column_fields['invmut_source_id'];
-			$im->column_fields['invmut_product_id'] = $column_fields['invmut_product_id'];
-
-			$handler = vtws_getModuleHandlerFromName('InventoryMutations', $current_user);
-			$meta = $handler->getMeta();
-			$im->column_fields = DataTransform::sanitizeRetrieveEntityInfo($im->column_fields, $meta);
-			$im->save('InventoryMutations');
-		}	
-	}
-
-	private function getSoNoStockChange($invdet_id) {
-		global $adb;
-		$r = $adb->pquery("SELECT vtiger_salesorder.{$this->prefix}so_no_stock_change AS flag 
-			               FROM vtiger_salesorder INNER JOIN vtiger_inventorydetails ON 
-                           vtiger_salesorder.salesorderid = vtiger_inventorydetails.related_to 
-			               WHERE vtiger_inventorydetails.inventorydetailsid = ?", array($invdet_id));
-
-		if ($adb->num_rows($r) > 0) {
-			$flag = $adb->fetch_array($r)['flag'];
-			if ($flag == 0 || $flag == '0') {
-				return false;
-			} else {
-				return true;
-			}
-		} else {
-			return false;
-		}
-	}	
-
 	public function getPrefix() {
 		return $this->prefix;
-	}
-
-	public function getSiblingFromInvoice($invoiceid, $productid) {
-		global $adb;
-
-		$r = $adb->pquery("
-			SELECT vtiger_inventorydetails.inventorydetailsid AS id, 
-			vtiger_inventorydetails.quantity FROM 
-			vtiger_inventorydetails INNER JOIN vtiger_crmentity crment_inv ON 
-			vtiger_inventorydetails.inventorydetailsid = crment_inv.crmid 
-			INNER JOIN vtiger_crmentity crment_prod ON 
-			vtiger_inventorydetails.productid = crment_prod.crmid WHERE 
-			vtiger_inventorydetails.related_to IN (
-				SELECT vtiger_invoice.salesorderid FROM vtiger_invoice INNER JOIN vtiger_crmentity ON 
-				vtiger_invoice.invoiceid = vtiger_crmentity.crmid INNER JOIN vtiger_salesorder ON 
-				vtiger_invoice.salesorderid = vtiger_salesorder.salesorderid 
-				WHERE 
-				vtiger_crmentity.deleted = ? AND 
-				vtiger_invoice.invoiceid = ? AND 
-				(vtiger_salesorder.{$this->prefix}so_no_stock_change != ? OR 
-				vtiger_salesorder.{$this->prefix}so_no_stock_change IS NULL)
-			) 
-			AND vtiger_inventorydetails.productid = ? 
-			AND crment_inv.deleted = ? 
-			AND crment_prod.deleted = ?", array(0, $invoiceid, 1, $productid, 0, 0));
-
-		if ($adb->num_rows($r) > 0) {
-			return $adb->fetch_array($r);
-		} else {
-			return false;
-		}
-	}
-
-	/*
-	 * Method: update an inventorydetails record
-	 *
-	 * @param : record ID of the inventorydetails record you want to update
-	 * @param : quantity you want the units delivered deducted from
-	 * @param : The inventorydetails record ID that you want to set as this records' sibling
-	 * @param : The units delivered
-	 * @param : (bool) Use 'save' mothod or 'saveentity' (avoid other aftersave events and workflows)
-	 * @param : (string) The type of delivery ('invoiced'/'delivered') decides which field the $units_del will set
-	 */
-	public function updateInvDetRec($invdet_id, $invdet_qty, $sibl_id, $units_del, $saveentity = false, $deliver_type = 'delivered') {
-		global $current_user;
-		require_once 'modules/InventoryDetails/InventoryDetails.php';
-		require_once 'include/utils/VtlibUtils.php';
-
-		$id = new InventoryDetails();
-		$id->retrieve_entity_info($invdet_id, 'InventoryDetails');
-		$id->id = $invdet_id;
-		$id->mode = 'edit';
-
-		if (vtlib_isModuleActive('InventoryMutations') && $saveentity && $deliver_type == 'delivered') {
-			require_once 'modules/InventoryMutations/InventoryMutations.php';
-			// create inventorymutations record since saveentity doesn't call the aftersave
-			$this->createInventoryMutation(array(
-				'units_delrec_before' => $id->column_fields['units_delivered_received'],
-				'units_delrec_mutated' => $units_del,
-				'units_delrec_after' => $id->column_fields['units_delivered_received'] - $units_del,
-				'invmut_inventorydetails_id' => $id->id,
-				'invmut_source_id' => $id->column_fields['related_to'],
-				'invmut_product_id' => $id->column_fields['productid'],
-			));
-		}
-
-		$id->column_fields[$this->prefix . 'so_sibling'] = $sibl_id;
-
-		if ($deliver_type == 'invoiced') {
-			$id->column_fields[$this->prefix . 'qty_invoiced'] = $units_del;
-		} else {
-			$id->column_fields['units_delivered_received'] = $units_del;
-		}
-		
-
-		if (!$this->getSoNoStockChange($invdet_id)) {
-			$id->column_fields[$this->prefix . 'qty_in_order'] = $invdet_qty - $units_del;
-		} else {
-			$id->column_fields[$this->prefix . 'qty_in_order'] = 0;
-		}
-
-		$handler = vtws_getModuleHandlerFromName('InventoryDetails', $current_user);
-		$meta = $handler->getMeta();
-		$id->column_fields = DataTransform::sanitizeRetrieveEntityInfo($id->column_fields, $meta);
-
-		// Make sure no ajax action is set to prevent CRMEntity from NOT converting to DB format
-		$hold_ajxaction = isset($_REQUEST['ajxaction']) ? $_REQUEST['ajxaction'] : '';
-		unset($_REQUEST['ajxaction']);		
-
-		if ($saveentity) {
-			$id->saveentity('InventoryDetails');
-		} else {
-			$id->save('InventoryDetails');
-		}
-
-		$_REQUEST['ajxaction'] = $hold_ajxaction;
-	}
-
-	public function getInvDetQtyById($id) {
-		global $adb;
-		$r = $adb->pquery("SELECT quantity FROM vtiger_inventorydetails WHERE inventorydetailsid = ? LIMIT 1", array($id));
-		return $adb->fetch_array($r)['quantity'];
-	}
-
-	public function getInvoiceQtysFromSoLine($so_line_id) {
-		global $adb;
-		$r = $adb->pquery("SELECT SUM(vtiger_inventorydetails.quantity) AS qty FROM vtiger_inventorydetails 
-                           INNER JOIN vtiger_crmentity crment_inv ON 
-                           vtiger_inventorydetails.related_to = crment_inv.crmid 
-                           INNER JOIN vtiger_crmentity crment_invdet ON 
-                           vtiger_inventorydetails.inventorydetailsid = crment_invdet.crmid 
-                           WHERE vtiger_inventorydetails.{$this->prefix}so_sibling = ? 
-                           AND (SELECT vtiger_salesorder.invextras_so_no_stock_change FROM 
-                                vtiger_salesorder INNER JOIN vtiger_inventorydetails 
-                                ON vtiger_salesorder.salesorderid = vtiger_inventorydetails.related_to 
-                                WHERE vtiger_inventorydetails.inventorydetailsid = ? LIMIT 1) != ? 
-                           AND (SELECT vtiger_inventorydetails.productid FROM vtiger_inventorydetails 
-                                WHERE vtiger_inventorydetails.inventorydetailsid = ? LIMIT 1) = vtiger_inventorydetails.productid 
-                           AND crment_inv.deleted = ? 
-                           AND crment_invdet.deleted = ?", array($so_line_id, $so_line_id, 1, $so_line_id, 0, 0));
-		return $adb->num_rows($r) > 0 ? $adb->fetch_array($r)['qty'] : 0;
-	}
-	
-	public function getQtyInOrderByProduct($productid) {
-		global $adb;
-		$r = $adb->pquery("SELECT SUM(vtiger_inventorydetails.{$this->prefix}qty_in_order) AS qty FROM vtiger_inventorydetails 
-			INNER JOIN vtiger_crmentity ON 
-			vtiger_inventorydetails.inventorydetailsid = vtiger_crmentity.crmid 
-			INNER JOIN vtiger_salesorder ON 
-			vtiger_salesorder.salesorderid = vtiger_inventorydetails.related_to 
-			INNER JOIN vtiger_crmentity crment_so ON 
-			vtiger_salesorder.salesorderid = crment_so.crmid 
-			WHERE vtiger_crmentity.deleted = ? 
-			AND crment_so.deleted = ? 
-			AND vtiger_inventorydetails.productid = ? 
-			AND (vtiger_salesorder.{$this->prefix}so_no_stock_change != ? 
-			OR vtiger_salesorder.{$this->prefix}so_no_stock_change IS NULL)", array(0, 0, $productid, 1));
-
-		return $adb->fetch_array($r)['qty'];
 	}
 
 	public function getTotalInBackOrder($productid) {
@@ -627,84 +400,5 @@ Class InventoryExtras {
 			               AND vtiger_inventorydetails.productid = ?", array(0, 0, 0, $productid));
 
 		return $adb->fetch_array($r)['qty_bo'];
-	}
-
-	public function updateProductQtyInOrder($productid, $qty_in_order, $fieldname, $source_mod = '') {
-		global $current_user;
-		require_once 'modules/Products/Products.php';
-
-		$p = new Products();
-		$p->retrieve_entity_info($productid, 'Products');
-		$p->id = $productid;
-		$p->mode = 'edit';
-
-		$p->column_fields[$fieldname] = $qty_in_order;
-
-		if ($source_mod == 'SalesOrder') {
-			// Recalculate available stock
-			$p->column_fields[$this->prefix . 'prod_stock_avail'] = (float)$p->column_fields['qtyinstock'] - (float)$qty_in_order;			
-		}
-		if ($source_mod == 'PurchaseOrder' && file_exists('modules/ExactOnline/ExactOnline.php')) {
-			// Make sure the 'prod_qty_to_order' field is altered
-			$p->column_fields[$this->prefix . 'prod_qty_to_order'] = ((float)$qty_in_order + (float)$p->column_fields['reorderlevel'])
-				- ((float)$p->column_fields['qtyinstock'] + (float)$p->column_fields['qtyindemand']);
-		}
-
-		$handler = vtws_getModuleHandlerFromName('Products', $current_user);
-		$meta = $handler->getMeta();
-		unset($_REQUEST['ajxaction']);
-		$p->column_fields = DataTransform::sanitizeRetrieveEntityInfo($p->column_fields, $meta);
-
-		if (isset($_REQUEST['ajxaction'])) {
-			$ajxaction_holder = $_REQUEST['ajxaction'];
-			$_REQUEST['ajxaction'] = 'Workflow';
-		}
-
-		if (file_exists('modules/ExactOnline/ExactOnline.php')) {
-			$p->saveentity('Products');
-		} else {
-			$p->save('Products');
-		}
-
-		if (isset($_REQUEST['ajxaction'])) {
-			$_REQUEST['ajxaction'] = $ajxaction_holder;
-		}
-	}
-
-	/*
-	 * Take a salesorder inventoryline ID and see
-	 * if there are any invoicelines that have no
-	 * related salesorder ID but should have
-	 *
-	 */
-	public function getPotentialInvoiceLinesFor($invdet_line_id) {
-		global $adb;
-		$potentials = array();
-		$r = $adb->pquery("SELECT inventorydetailsid FROM vtiger_inventorydetails
-						INNER JOIN vtiger_crmentity crment
-						ON vtiger_inventorydetails.inventorydetailsid = crment.crmid
-						WHERE vtiger_inventorydetails.productid IN (
-							SELECT vtiger_inventorydetails.productid FROM vtiger_inventorydetails
-							WHERE vtiger_inventorydetails.inventorydetailsid = ?
-						)
-						AND vtiger_inventorydetails.related_to IN (
-							SELECT vtiger_invoice.invoiceid FROM vtiger_invoice
-							INNER JOIN vtiger_salesorder ON vtiger_salesorder.salesorderid = vtiger_invoice.salesorderid
-							INNER JOIN vtiger_inventorydetails ON vtiger_inventorydetails.related_to = vtiger_salesorder.salesorderid
-							WHERE vtiger_inventorydetails.inventorydetailsid = ?
-						)
-						AND (
-							vtiger_inventorydetails.invextras_so_sibling IS NULL
-							OR vtiger_inventorydetails.invextras_so_sibling = ?
-						)
-						AND crment.deleted = ?", array($invdet_line_id, $invdet_line_id, 0, 0));
-		if ($adb->num_rows($r) > 0) {
-			while ($row = $adb->fetch_array($r)) {
-				$potentials[] = $row['inventorydetailsid'];
-			}
-		} else {
-			$potentials = false;
-		}
-		return $potentials;
 	}
 }

@@ -48,15 +48,6 @@ function getInfoByProduct($product_id, $record_id, $seq) {
 						'Services' AS setype
 					FROM vtiger_service WHERE serviceid = ?", array($product_id, $product_id));
 
-	$invdet_info = $adb->fetch_array($adb->pquery("SELECT SUM(invextras_qty_invoiced) AS qty_invoiced 
-		                                           FROM vtiger_inventorydetails 
-                                                   INNER JOIN vtiger_crmentity 
-                                                   ON vtiger_inventorydetails.inventorydetailsid = vtiger_crmentity.crmid 
-		                                           WHERE related_to = ? 
-		                                           AND sequence_no = ? 
-		                                           AND productid = ? 
-		                                           AND vtiger_crmentity.deleted = ?", array($record_id, $seq, $product_id, 0)));
-
 	if ($adb->num_rows($r) > 0) {
 		$data = $adb->fetch_array($r);
 
@@ -64,11 +55,9 @@ function getInfoByProduct($product_id, $record_id, $seq) {
 		$stock_avail = CurrencyField::convertToUserFormat($data['stockavail']);
 		$qty_to_order = CurrencyField::convertToUserFormat($data['qtytoorder']);
 		$qty_in_demand = CurrencyField::convertToUserFormat($data['qtyindemand']);
-		$qty_invoiced = CurrencyField::convertToUserFormat($invdet_info['qty_invoiced']);
 
 		$qty_in_order_lab = getTranslatedString('LBL_TO_DELIVER_SO', 'InventoryExtras');
 		$qty_in_demand_lab = getTranslatedString('LBL_TO_RECEIVE_PO', 'InventoryExtras');
-		$qty_invoiced_lab = getTranslatedString('invextras_qty_invoiced', 'InventoryDetails');
 		$stock_avail_lab = getTranslatedString($invext_prefix . 'prod_stock_avail', 'Products');
 		$qty_to_order_lab = getTranslatedString($invext_prefix . 'prod_qty_to_order', 'Products');
 		$ven_part_no_lab = getTranslatedString('Vendor PartNo', 'Products');
@@ -90,9 +79,6 @@ function getInfoByProduct($product_id, $record_id, $seq) {
 			'venpartno' => array(
 				'label' => $ven_part_no_lab,
 			    'value' => $data['vendor_part_no']),
-			'qtyinvoiced' => array(
-				'label' => $qty_invoiced_lab,
-				'value' => $qty_invoiced),
 			'glaccount' => array(
 				'label' => $gl_account_lab,
 				'value' => $data['generalledgers']),
