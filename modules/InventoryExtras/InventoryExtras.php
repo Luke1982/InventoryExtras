@@ -7,7 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
-Class InventoryExtras {
+class InventoryExtras {
 
 	private $prefix = 'invextras_';
 
@@ -18,8 +18,10 @@ Class InventoryExtras {
 			'nl_nl' => 'Mutatie voorraad buiten beschouwing laten',
 		),
 		'LBL_HELP_SO_LEAVE_STOCK_ALONE' => array(
-			'en_us' => 'This will avoid lines on related invoices from being linked to lines on this salesorder. It will also avoid the lines on this salesorder to affect the total no. in order on the product.',
-			'nl_nl' => 'Als dit aan staat worden er geen factuurregels gezocht die tegenover de regels van de order moeten komen te staan. De regels van deze order hebben dan ook geen invloed op het product (bijvoorbeeld het aantal \'in order\'',
+			'en_us' => 'This will avoid lines on related invoices from being linked to lines on this salesorder.
+			It will also avoid the lines on this salesorder to affect the total no. in order on the product.',
+			'nl_nl' => 'Als dit aan staat worden er geen factuurregels gezocht die tegenover de regels van de order
+			moeten komen te staan. De regels van deze order hebben dan ook geen invloed op het product (bijvoorbeeld het aantal \'in order\'',
 		),
 	);
 	private $i18n_invdet = array(
@@ -106,19 +108,19 @@ Class InventoryExtras {
 	 * @param String Module name
 	 * @param String Event Type (module.postinstall, module.disabled, module.enabled, module.preuninstall)
 	 */
-	function vtlib_handler($modulename, $event_type) {
-		if($event_type == 'module.postinstall') {
+	public function vtlib_handler($modulename, $event_type) {
+		if ($event_type == 'module.postinstall') {
 			$this->doPostInstall();
-		} else if($event_type == 'module.disabled') {
+		} elseif ($event_type == 'module.disabled') {
 			// TODO Handle actions when this module is disabled.
-		} else if($event_type == 'module.enabled') {
+		} elseif ($event_type == 'module.enabled') {
 			// TODO Handle actions when this module is enabled.
-		} else if($event_type == 'module.preuninstall') {
+		} elseif ($event_type == 'module.preuninstall') {
 			// TODO Handle actions when this module is about to be deleted.
 			$this->removeThisModule();
-		} else if($event_type == 'module.preupdate') {
+		} elseif ($event_type == 'module.preupdate') {
 			// TODO Handle actions before this module is updated.
-		} else if($event_type == 'module.postupdate') {
+		} elseif ($event_type == 'module.postupdate') {
 			// TODO Handle actions after this module is updated.
 			$this->doInstallcbUpdates();
 			$this->doRemoveInvExtrasBlockInInvendet();
@@ -234,21 +236,33 @@ Class InventoryExtras {
 
 		$mod = Vtiger_Module::getInstance('InventoryDetails');
 		$blk = Vtiger_Block::getInstance('LBL_INVDET_SO_INFO', $mod);
-		if ($blk !== false) $blk->delete(true);
+		if ($blk !== false) {
+			$blk->delete(true);
+		}
 
 		$mod = Vtiger_Module::getInstance('Products');
 		$fld = Vtiger_Field::getInstance($this->prefix . 'prod_qty_in_order', $mod);
-		if ($fld !== false) $fld->delete();
+		if ($fld !== false) {
+			$fld->delete();
+		}
 		$fld = Vtiger_Field::getInstance($this->prefix . 'prod_stock_avail', $mod);
-		if ($fld !== false) $fld->delete();
+		if ($fld !== false) {
+			$fld->delete();
+		}
 		$fld = Vtiger_Field::getInstance($this->prefix . 'prod_qty_to_order', $mod);
-		if ($fld !== false) $fld->delete();
+		if ($fld !== false) {
+			$fld->delete();
+		}
 		$fld = Vtiger_Field::getInstance($this->prefix . 'prod_max_stock', $mod);
-		if ($fld !== false) $fld->delete();
+		if ($fld !== false) {
+			$fld->delete();
+		}
 
 		$mod = Vtiger_Module::getInstance('SalesOrder');
 		$fld = Vtiger_Field::getInstance($this->prefix . 'so_no_stock_change', $mod);
-		if ($fld !== false) $fld->delete();
+		if ($fld !== false) {
+			$fld->delete();
+		}
 
 		$this->doRemoveWorkflowFunction();
 
@@ -262,8 +276,16 @@ Class InventoryExtras {
 		$adb->query("ALTER TABLE vtiger_salesorder DROP COLUMN " . $this->prefix . "so_no_stock_change");
 
 		$moduleInstance = Vtiger_Module::getInstance('Products');
-		$moduleInstance->deleteLink('DETAILVIEWWIDGET', 'LBL_PRODUCT_IN_ORDER_ON', 'module=InventoryExtras&action=InventoryExtrasAjax&file=ProductsInOrderOnWidget&return_module=$MODULE$&record=$RECORD$');
-		$moduleInstance->deleteLink('DETAILVIEWWIDGET', 'LBL_PRODUCT_IN_BACKORDER_ON', 'module=InventoryExtras&action=InventoryExtrasAjax&file=ProductsInBackOrderOnWidget&return_module=$MODULE$&record=$RECORD$');
+		$moduleInstance->deleteLink(
+			'DETAILVIEWWIDGET',
+			'LBL_PRODUCT_IN_ORDER_ON',
+			'module=InventoryExtras&action=InventoryExtrasAjax&file=ProductsInOrderOnWidget&return_module=$MODULE$&record=$RECORD$'
+		);
+		$moduleInstance->deleteLink(
+			'DETAILVIEWWIDGET',
+			'LBL_PRODUCT_IN_BACKORDER_ON',
+			'module=InventoryExtras&action=InventoryExtrasAjax&file=ProductsInBackOrderOnWidget&return_module=$MODULE$&record=$RECORD$'
+		);
 		$moduleInstance = Vtiger_Module::getInstance('InventoryExtras');
 		$moduleInstance->deleteLink('HEADERSCRIPT', 'InventoryExtrasHeaderScript', 'modules/InventoryExtras/InventoryExtras.js');
 
@@ -307,21 +329,29 @@ Class InventoryExtras {
 	}
 
 	private function doAddProductInOrderOnWidget() {
-		include_once('vtlib/Vtiger/Module.php');
+		include_once 'vtlib/Vtiger/Module.php';
 		$mod_acc = Vtiger_Module::getInstance('Products');
-		$mod_acc->addLink('DETAILVIEWWIDGET', 'LBL_PRODUCT_IN_ORDER_ON', 'module=InventoryExtras&action=InventoryExtrasAjax&file=ProductsInOrderOnWidget&return_module=$MODULE$&record=$RECORD$');		
+		$mod_acc->addLink(
+			'DETAILVIEWWIDGET',
+			'LBL_PRODUCT_IN_ORDER_ON',
+			'module=InventoryExtras&action=InventoryExtrasAjax&file=ProductsInOrderOnWidget&return_module=$MODULE$&record=$RECORD$'
+		);
 	}
 
 	private function doAddProductInBackOrderOnWidget() {
-		include_once('vtlib/Vtiger/Module.php');
+		include_once 'vtlib/Vtiger/Module.php';
 		$mod_acc = Vtiger_Module::getInstance('Products');
-		$mod_acc->addLink('DETAILVIEWWIDGET', 'LBL_PRODUCT_IN_BACKORDER_ON', 'module=InventoryExtras&action=InventoryExtrasAjax&file=ProductsInBackOrderOnWidget&return_module=$MODULE$&record=$RECORD$');		
+		$mod_acc->addLink(
+			'DETAILVIEWWIDGET',
+			'LBL_PRODUCT_IN_BACKORDER_ON',
+			'module=InventoryExtras&action=InventoryExtrasAjax&file=ProductsInBackOrderOnWidget&return_module=$MODULE$&record=$RECORD$'
+		);
 	}
 
 	private function doAddInventoryExtrasHeaderScript() {
-		include_once('vtlib/Vtiger/Module.php');
+		include_once 'vtlib/Vtiger/Module.php';
 		$mod_acc = Vtiger_Module::getInstance('InventoryExtras');
-		$mod_acc->addLink('HEADERSCRIPT', 'InventoryExtrasHeaderScript', 'modules/InventoryExtras/InventoryExtras.js');		
+		$mod_acc->addLink('HEADERSCRIPT', 'InventoryExtrasHeaderScript', 'modules/InventoryExtras/InventoryExtras.js');
 	}
 
 	private function doUpdateLangFiles() {
@@ -332,18 +362,33 @@ Class InventoryExtras {
 
 	private function doCreateWorkflowFunction() {
 		require_once 'include/utils/utils.php';
-		include_once('vtlib/Vtiger/Module.php');
+		include_once 'vtlib/Vtiger/Module.php';
 		require 'modules/com_vtiger_workflow/VTEntityMethodManager.inc';
 		global $adb;
 		$emm = new VTEntityMethodManager($adb);
-		$emm->addEntityMethod("PurchaseOrder", "Equalize related InventoryDetails records", "modules/InventoryExtras/workflowfunctions/EqualizeIDRecords.php", "EqualizeIDRecords");
-		$emm->addEntityMethod("SalesOrder", "Equalize related InventoryDetails records", "modules/InventoryExtras/workflowfunctions/EqualizeIDRecords.php", "EqualizeIDRecords");
-		$emm->addEntityMethod("Invoice", "Equalize related InventoryDetails records", "modules/InventoryExtras/workflowfunctions/EqualizeIDRecords.php", "EqualizeIDRecords");
+		$emm->addEntityMethod(
+			"PurchaseOrder",
+			"Equalize related InventoryDetails records",
+			"modules/InventoryExtras/workflowfunctions/EqualizeIDRecords.php",
+			"EqualizeIDRecords"
+		);
+		$emm->addEntityMethod(
+			"SalesOrder",
+			"Equalize related InventoryDetails records",
+			"modules/InventoryExtras/workflowfunctions/EqualizeIDRecords.php",
+			"EqualizeIDRecords"
+		);
+		$emm->addEntityMethod(
+			"Invoice",
+			"Equalize related InventoryDetails records",
+			"modules/InventoryExtras/workflowfunctions/EqualizeIDRecords.php",
+			"EqualizeIDRecords"
+		);
 	}
 
 	private function doRemoveWorkflowFunction() {
 		require_once 'include/utils/utils.php';
-		include_once('vtlib/Vtiger/Module.php');
+		include_once 'vtlib/Vtiger/Module.php';
 		require 'modules/com_vtiger_workflow/VTEntityMethodManager.inc';
 		global $adb;
 		$emm = new VTEntityMethodManager($adb);
