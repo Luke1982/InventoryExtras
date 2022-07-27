@@ -426,24 +426,136 @@ class InventoryExtras {
 		return $this->prefix;
 	}
 
-	public function getTotalInBackOrder($productid) {
+	/**
+	 * Get the current quantity in backorder for
+	 * each product by taking the PurchaseOrders
+	 * that are pending, getting the quantity ordered
+	 * for each line and deducting the possible
+	 * units received for that line.
+	 *
+	 * @param  array  An optional array of product ID's
+	 * 				  that will be used to filter the results.
+	 * @return Object database result object
+	 * @throws None
+	 */
+	public function getCurrentProductBackorderLevelsObject(array $products = array()) : object {
 		global $adb;
-		$r = $adb->pquery("SELECT SUM(vtiger_inventorydetails.quantity - vtiger_inventorydetails.units_delivered_received) AS qty_bo 
-			               FROM vtiger_inventorydetails 
-			               INNER JOIN vtiger_crmentity crment_id 
-			               ON vtiger_inventorydetails.inventorydetailsid = crment_id.crmid 
-			               INNER JOIN vtiger_crmentity crment_prod 
-			               ON vtiger_inventorydetails.productid = crment_prod.crmid 
-			               INNER JOIN vtiger_purchaseorder 
-			               ON vtiger_inventorydetails.related_to = vtiger_purchaseorder.purchaseorderid 
-			               INNER JOIN vtiger_crmentity crment_po 
-			               ON vtiger_inventorydetails.related_to = crment_po.crmid 
-			               WHERE crment_id.deleted = ? 
-			               AND crment_prod.deleted = ? 
-			               AND crment_po.deleted = ? 
-			               AND vtiger_purchaseorder.postatus != 'Cancelled' 
-			               AND vtiger_inventorydetails.productid = ?", array(0, 0, 0, $productid));
+		$filter = count($products) > 0 ? 'WHERE p.productid IN(' . implode(',', $products) . ')' : '';
+		$q = "SELECT p.productid,
+					 p.product_no,
+					 p.productname,
+					 SUM(poid.quantity - poid.units_delivered_received) AS qty_bo 
+				FROM vtiger_inventorydetails AS poid
+				INNER JOIN vtiger_crmentity crment_id 
+					ON poid.inventorydetailsid = crment_id.crmid 
+				INNER JOIN vtiger_crmentity crment_prod 
+					ON poid.productid = crment_prod.crmid 
+				INNER JOIN vtiger_purchaseorder AS po
+					ON poid.related_to = po.purchaseorderid 
+				INNER JOIN vtiger_crmentity crment_po 
+					ON poid.related_to = crment_po.crmid
+				INNER JOIN vtiger_products AS p
+					ON poid.productid = p.productid 
+				WHERE crment_id.deleted = 0
+				AND crment_prod.deleted = 0 
+				AND crment_po.deleted = 0
+				AND po.postatus != 'Cancelled'
+				AND po.postatus != 'Delivered'
+				AND po.postatus != 'Received Shipment'
+				{$filter}
+				GROUP BY poid.productid";
+		return $adb->query($q);
+	}
 
-		return $adb->fetch_array($r)['qty_bo'];
+	/**
+	 * Get the current stock level for each product by
+	 * taking the sum of all purchaseorderlines (InventoryDetails)
+	 * quantities 'received' and deducting all the quantities
+	 * invoices
+	 *
+	 * @param  array  An optional array of product ID's
+	 * 				  that will be used to filter the results.
+	 * @return Object database result object
+	 * @throws None
+	 */
+	public function getCurrentProductStockLevelsObject(array $products = array()) : object {
+		global $adb;
+		$filter = count($products) > 0 ? 'WHERE p.productid IN(' . implode(',', $products) . ')' : '';
+		$q = "SELECT p.product_no,
+					p.productname,
+					SUM(poid.units_delivered_received) AS received,
+					SUM(invid.quantity) AS delivered,
+					SUM(poid.units_delivered_received) - SUM(invid.quantity) AS instock
+				FROM vtiger_products AS p
+				INNER JOIN vtiger_inventorydetails AS poid
+					ON poid.productid = p.productid
+					AND (
+						SELECT `setype`
+						FROM vtiger_crmentity
+						WHERE vtiger_crmentity.crmid = poid.related_to
+						AND vtiger_crmentity.deleted = 0
+					) = 'PurchaseOrder'
+				INNER JOIN vtiger_crmentity AS poid_ent
+					ON poid.inventorydetailsid = poid_ent.crmid
+					AND poid_ent.deleted = 0
+				INNER JOIN vtiger_inventorydetails AS invid
+					ON invid.productid = p.productid
+					AND (
+						SELECT `setype`
+						FROM vtiger_crmentity
+						WHERE vtiger_crmentity.crmid = invid.related_to
+						AND vtiger_crmentity.deleted = 0
+					) = 'Invoice'
+				INNER JOIN vtiger_crmentity AS invid_ent
+					ON invid.inventorydetailsid = invid_ent.crmid
+					AND invid_ent.deleted = 0
+				{$filter}
+				GROUP BY p.productid";
+		$r = $adb->query($q);
+		return $r;
+	}
+
+	/**
+	 * Get the current quantity in order for all products
+	 * by taking all InventoryLines that belong to orders
+	 * that are NOT 'Delivered', 'Cancelled', 'Niet geleverd'
+	 * AND do not have the checkbox 'so_no_stock_change'
+	 * selected. The units_delivered_received will be
+	 * deducted from the quantity of each line.
+	 *
+	 * @param  array  An optional array of product ID's
+	 * 				  that will be used to filter the results.
+	 * @return object Database result object
+	 * @throws None
+	 */
+	public function getCurrentProductOrderLevelsObject(array $products = array()) : object {
+		global $adb;
+		$filter = count($products) > 0 ? 'WHERE p.productid IN(' . implode(',', $products) . ')' : '';
+		$q = "SELECT p.product_no,
+					SUM(soid.quantity) AS sold,
+					SUM(soid.units_delivered_received) AS delivered,
+					SUM(soid.quantity - soid.units_delivered_received) AS inorder
+				FROM vtiger_products AS p
+				INNER JOIN vtiger_inventorydetails AS soid
+					ON p.productid = soid.productid
+					AND (
+						SELECT `setype`
+						FROM vtiger_crmentity
+						WHERE vtiger_crmentity.crmid = soid.related_to
+						AND vtiger_crmentity.deleted = 0
+					) = 'SalesOrder'
+				INNER JOIN vtiger_salesorder AS so
+					ON soid.related_to = so.salesorderid
+					AND so.sostatus != 'Delivered'
+					AND so.sostatus != 'Cancelled'
+					AND so.sostatus != 'Niet geleverd'
+					AND so.invextras_so_no_stock_change != 1
+				INNER JOIN vtiger_crmentity AS soid_ent
+					ON soid.inventorydetailsid = soid_ent.crmid
+					AND soid_ent.deleted = 0
+				{$filter}
+				GROUP BY p.productid";
+		$r = $adb->query($q);
+		return $r;
 	}
 }
