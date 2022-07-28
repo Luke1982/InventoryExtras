@@ -456,7 +456,7 @@ class InventoryExtras {
 				INNER JOIN vtiger_crmentity crment_po 
 					ON poid.related_to = crment_po.crmid
 				INNER JOIN vtiger_products AS p
-					ON poid.productid = p.productid 
+					ON poid.productid = p.productid
 				WHERE crment_id.deleted = 0
 				AND crment_prod.deleted = 0 
 				AND crment_po.deleted = 0
@@ -490,6 +490,9 @@ class InventoryExtras {
 					 SUM(invid.quantity) AS invoiced,
 					 SUM(poid.units_delivered_received) - SUM(invid.quantity) AS instock
 				FROM vtiger_products AS p
+				INNER JOIN vtiger_crmentity AS p_ent
+					ON p.productid = p_ent.crmid
+					AND p_ent.deleted = 0
 				INNER JOIN vtiger_inventorydetails AS poid
 					ON poid.productid = p.productid
 					AND (
@@ -541,6 +544,9 @@ class InventoryExtras {
 					 SUM(soid.units_delivered_received) AS delivered,
 					 SUM(soid.quantity - soid.units_delivered_received) AS inorder
 				FROM vtiger_products AS p
+				INNER JOIN vtiger_crmentity AS p_ent
+					ON p.productid = p_ent.crmid
+					AND p_ent.deleted = 0
 				INNER JOIN vtiger_inventorydetails AS soid
 					ON p.productid = soid.productid
 					AND (
