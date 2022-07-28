@@ -563,4 +563,26 @@ class InventoryExtras {
 		$r = $adb->query($q);
 		return $r;
 	}
+
+	/**
+	 * Update a single product
+	 *
+	 * @param array   $product An array that contains the product information
+	 * 						   that CAN, but does not have to include the
+	 * 						   following keys:
+	 * 						   - productid: The product CRM ID
+	 * 						   - product_no
+	 * 						   - sold: The qty sold on salesorders
+	 * 						   - delivered: The qty delivered on invoices
+	 * 						   - inorder: The delta between sold and delivered
+	 * 						   - productname
+	 * 						   - received: The qty received from purchaseorders
+	 * 						   - invoiced: The qty invoiced in total
+	 * 						   - instock: The delta between received and invoiced
+	 * 						   - inbackorder: The quantity not received on open purchaseorders
+	 * @return object $focus The productobject after saving
+	 * @throws None
+	 */
+	public function updateProduct(array $product) : object {
+	}
 }

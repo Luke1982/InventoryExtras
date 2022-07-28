@@ -41,7 +41,9 @@ function updateProductInventoryFieldsFor(array $products = array()) : void {
 		$inorder_object,
 		$backorder_object
 	);
-	var_dump($product_info);
+	foreach ($product_info as $product) {
+		$ie->updateProduct($product);
+	}
 }
 
 /**
