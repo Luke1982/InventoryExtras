@@ -584,5 +584,31 @@ class InventoryExtras {
 	 * @throws None
 	 */
 	public function updateProduct(array $product) : object {
+		global $current_user;
+		require_once 'modules/Products/Products.php';
+
+		$p = new Products();
+		$p->retrieve_entity_info($product['productid'], 'Products');
+		$p->id = $product['productid'];
+		$p->mode = 'edit';
+
+		// Do stuff here
+
+		$handler = vtws_getModuleHandlerFromName('Products', $current_user);
+		$meta = $handler->getMeta();
+		$p->column_fields = DataTransform::sanitizeRetrieveEntityInfo($p->column_fields, $meta);
+
+		if (isset($_REQUEST['ajxaction'])) {
+			$ajxaction_holder = $_REQUEST['ajxaction'];
+			$_REQUEST['ajxaction'] = 'Workflow';
+		}
+
+		$p->saveentity('Products');
+
+		if (isset($_REQUEST['ajxaction'])) {
+			$_REQUEST['ajxaction'] = $ajxaction_holder;
+		}
+
+		return $p;
 	}
 }
