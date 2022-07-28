@@ -433,18 +433,19 @@ class InventoryExtras {
 	 * for each line and deducting the possible
 	 * units received for that line.
 	 *
-	 * @param  array  An optional array of product ID's
+	 * @param  array  $products
+	 * 				  An optional array of product ID's
 	 * 				  that will be used to filter the results.
 	 * @return Object database result object
 	 * @throws None
 	 */
 	public function getCurrentProductBackorderLevelsObject(array $products = array()) : object {
 		global $adb;
-		$filter = count($products) > 0 ? 'WHERE p.productid IN(' . implode(',', $products) . ')' : '';
+		$filter = count($products) > 0 ? 'AND p.productid IN(' . implode(',', $products) . ')' : '';
 		$q = "SELECT p.productid,
 					 p.product_no,
 					 p.productname,
-					 SUM(poid.quantity - poid.units_delivered_received) AS qty_bo 
+					 SUM(poid.quantity - poid.units_delivered_received) AS inbackorder 
 				FROM vtiger_inventorydetails AS poid
 				INNER JOIN vtiger_crmentity crment_id 
 					ON poid.inventorydetailsid = crment_id.crmid 
@@ -473,7 +474,8 @@ class InventoryExtras {
 	 * quantities 'received' and deducting all the quantities
 	 * invoices
 	 *
-	 * @param  array  An optional array of product ID's
+	 * @param  array  $products
+	 * 				  An optional array of product ID's
 	 * 				  that will be used to filter the results.
 	 * @return Object database result object
 	 * @throws None
@@ -481,11 +483,12 @@ class InventoryExtras {
 	public function getCurrentProductStockLevelsObject(array $products = array()) : object {
 		global $adb;
 		$filter = count($products) > 0 ? 'WHERE p.productid IN(' . implode(',', $products) . ')' : '';
-		$q = "SELECT p.product_no,
-					p.productname,
-					SUM(poid.units_delivered_received) AS received,
-					SUM(invid.quantity) AS delivered,
-					SUM(poid.units_delivered_received) - SUM(invid.quantity) AS instock
+		$q = "SELECT p.productid,
+					 p.product_no,
+					 p.productname,
+					 SUM(poid.units_delivered_received) AS received,
+					 SUM(invid.quantity) AS invoiced,
+					 SUM(poid.units_delivered_received) - SUM(invid.quantity) AS instock
 				FROM vtiger_products AS p
 				INNER JOIN vtiger_inventorydetails AS poid
 					ON poid.productid = p.productid
@@ -523,18 +526,20 @@ class InventoryExtras {
 	 * selected. The units_delivered_received will be
 	 * deducted from the quantity of each line.
 	 *
-	 * @param  array  An optional array of product ID's
-	 * 				  that will be used to filter the results.
+	 * @param  array  $products
+	 * 				  An optional array of product ID's that
+	 * 				  will be used to filter the results.
 	 * @return object Database result object
 	 * @throws None
 	 */
 	public function getCurrentProductOrderLevelsObject(array $products = array()) : object {
 		global $adb;
 		$filter = count($products) > 0 ? 'WHERE p.productid IN(' . implode(',', $products) . ')' : '';
-		$q = "SELECT p.product_no,
-					SUM(soid.quantity) AS sold,
-					SUM(soid.units_delivered_received) AS delivered,
-					SUM(soid.quantity - soid.units_delivered_received) AS inorder
+		$q = "SELECT p.productid,
+					 p.product_no,
+					 SUM(soid.quantity) AS sold,
+					 SUM(soid.units_delivered_received) AS delivered,
+					 SUM(soid.quantity - soid.units_delivered_received) AS inorder
 				FROM vtiger_products AS p
 				INNER JOIN vtiger_inventorydetails AS soid
 					ON p.productid = soid.productid
