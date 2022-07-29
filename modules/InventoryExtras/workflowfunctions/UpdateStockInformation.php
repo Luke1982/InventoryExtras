@@ -33,6 +33,9 @@ function updateStockForInventoryRecord(object $entity) : void {
 			INNER JOIN vtiger_crmentity AS e
 				ON id.inventorydetailsid = e.crmid
 				AND e.deleted = 0
+			INNER JOIN vtiger_crmentity AS pe
+				ON id.productid = pe.crmid
+				AND pe.deleted = 0
 			WHERE id.related_to = {$id}
 	";
 	$r = $adb->query($q);
