@@ -645,7 +645,7 @@ class InventoryExtras {
 	 *
 	 * @param int	  $productid The product CRM ID
 	 * @param array   $product   An array that contains the product information
-	 * 							 that CAN, but does not have to include the
+	 * 							 that **can**, but does not have to include the
 	 * 							 following keys:
 	 * 							 - productid: The product CRM ID
 	 * 							 - product_no
