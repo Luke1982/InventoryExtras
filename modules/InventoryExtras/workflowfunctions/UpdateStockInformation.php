@@ -36,6 +36,7 @@ function updateStockForInventoryRecord(object $entity) : void {
 			INNER JOIN vtiger_crmentity AS pe
 				ON id.productid = pe.crmid
 				AND pe.deleted = 0
+				AND pe.setype = 'Products'
 			WHERE id.related_to = {$id}
 	";
 	$r = $adb->query($q);
@@ -71,8 +72,8 @@ function updateProductInventoryFieldsFor(array $products = array()) : void {
 		$inorder_object,
 		$backorder_object
 	);
-	foreach ($product_info as $product) {
-		$ie->updateProduct($product);
+	foreach ($product_info as $productid => $product) {
+		$ie->updateProduct($productid, $product);
 	}
 }
 

@@ -643,29 +643,30 @@ class InventoryExtras {
 	/**
 	 * Update a single product
 	 *
-	 * @param array   $product An array that contains the product information
-	 * 						   that CAN, but does not have to include the
-	 * 						   following keys:
-	 * 						   - productid: The product CRM ID
-	 * 						   - product_no
-	 * 						   - sold: The qty sold on salesorders
-	 * 						   - delivered: The qty delivered on invoices
-	 * 						   - inorder: The delta between sold and delivered
-	 * 						   - productname
-	 * 						   - received: The qty received from purchaseorders
-	 * 						   - invoiced: The qty invoiced in total
-	 * 						   - instock: The delta between received and invoiced
-	 * 						   - inbackorder: The quantity not received on open purchaseorders
-	 * @return object $focus The productobject after saving
+	 * @param int	  $productid The product CRM ID
+	 * @param array   $product   An array that contains the product information
+	 * 							 that CAN, but does not have to include the
+	 * 							 following keys:
+	 * 							 - productid: The product CRM ID
+	 * 							 - product_no
+	 * 							 - sold: The qty sold on salesorders
+	 * 							 - delivered: The qty delivered on invoices
+	 * 							 - inorder: The delta between sold and delivered
+	 * 							 - productname
+	 * 							 - received: The qty received from purchaseorders
+	 * 							 - invoiced: The qty invoiced in total
+	 * 							 - instock: The delta between received and invoiced
+	 * 							 - inbackorder: The quantity not received on open purchaseorders
+	 * @return object $focus 	 The productobject after saving
 	 * @throws None
 	 */
-	public function updateProduct(array $product) : object {
+	public function updateProduct(int $productid, array $product) : object {
 		global $current_user;
 		require_once 'modules/Products/Products.php';
 
 		$p = new Products();
-		$p->retrieve_entity_info($product['productid'], 'Products');
-		$p->id = $product['productid'];
+		$p->retrieve_entity_info($productid, 'Products');
+		$p->id = $productid;
 		$p->mode = 'edit';
 
 		$this->sanitizeProductArray($product);
