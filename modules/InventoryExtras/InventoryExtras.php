@@ -134,7 +134,7 @@ class InventoryExtras {
 	 * @param String Module name
 	 * @param String Event Type (module.postinstall, module.disabled, module.enabled, module.preuninstall)
 	 */
-	public function vtlib_handler($modulename, $event_type) {
+	public function vtlib_handler($modulename, $event_type) { // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
 		if ($event_type == 'module.postinstall') {
 			$this->doPostInstall();
 		} elseif ($event_type == 'module.disabled') {
