@@ -104,6 +104,32 @@ class InventoryExtras {
 	);
 
 	/**
+	 * Link array keys from product collection
+	 * from database to fieldnames of products
+	 * Array format: 'corebos columnn name' => 'inventoryextras key'
+	 */
+	private const FIELD_MAPPING = array(
+		'qtyinstock'				  => 'instock',
+		'invextras_prod_qty_in_order' => 'inorder',
+		'qtyindemand'				  => 'inbackorder',
+	);
+
+	/**
+	 * All the numerical array keys that could
+	 * exist on a product collected from the
+	 * database by InventoryExtras
+	 */
+	public const NUMERICAL_KEYS = array(
+		'inbackorder',
+		'received',
+		'invoiced',
+		'instock',
+		'sold',
+		'delivered',
+		'inorder',
+	);
+
+	/**
 	 * Invoked when special actions are performed on the module.
 	 * @param String Module name
 	 * @param String Event Type (module.postinstall, module.disabled, module.enabled, module.preuninstall)
