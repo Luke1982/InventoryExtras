@@ -15,6 +15,32 @@
 *************************************************************************************************/
 
 /**
+ * Update the stock for all products listed on a certain
+ * record. This is the function that is eventually used
+ * in workflows
+ *
+ * @param  object $entity A representation of the CRM entity
+ * @return Null
+ * @throws Null
+ */
+function updateStockForInventoryRecord(object $entity) : void {
+	global $adb;
+	list($wsid, $id) = explode('x', $entity->id);
+
+	$q = "SELECT
+			GROUP_CONCAT(DISTINCT id.productid SEPARATOR ',') AS productids
+			FROM vtiger_inventorydetails AS id
+			INNER JOIN vtiger_crmentity AS e
+				ON id.inventorydetailsid = e.crmid
+				AND e.deleted = 0
+			WHERE id.related_to = {$id}
+	";
+	$r = $adb->query($q);
+	$product_ids = explode(',', $adb->query_result($r, 0, 'productids'));
+	updateProductInventoryFieldsFor($product_ids);
+}
+
+/**
  * Update the inventory field of the given products.
  * Those are:
  * - Stock level

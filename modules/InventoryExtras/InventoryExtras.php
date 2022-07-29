@@ -411,6 +411,15 @@ class InventoryExtras {
 			"modules/InventoryExtras/workflowfunctions/EqualizeIDRecords.php",
 			"EqualizeIDRecords"
 		);
+		$mods = array('Invoice', 'PurchaseOrder', 'SalesOrder');
+		array_walk($mods, function ($mod) use ($emm) {
+			$emm->addEntityMethod(
+				$mod,
+				'Werk voorraadinformatie bij voor alle producten die hierop genoemd zijn',
+				'modules/InventoryExtras/workflowfunctions/UpdateStockInformation.php',
+				'updateStockForInventoryRecord'
+			);
+		});
 	}
 
 	private function doRemoveWorkflowFunction() {
