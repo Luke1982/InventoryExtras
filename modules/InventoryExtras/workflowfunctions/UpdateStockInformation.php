@@ -41,8 +41,9 @@ function updateStockForInventoryRecord(object $entity) : void {
 }
 
 /**
- * Update the inventory field of the given products.
- * Those are:
+ * Update the inventory field of the given products. When an empty
+ * array is passed, **all** products will be updated.
+ * The fields that will be updated are:
  * - Stock level
  * - Quantity in order
  * - Quantity in backorder
