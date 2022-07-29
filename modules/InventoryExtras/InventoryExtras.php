@@ -483,40 +483,57 @@ class InventoryExtras {
 	public function getCurrentProductStockLevelsObject(array $products = array()) : object {
 		global $adb;
 		$filter = count($products) > 0 ? 'WHERE p.productid IN(' . implode(',', $products) . ')' : '';
-		$q = "SELECT p.productid,
-					 p.product_no,
-					 p.productname,
-					 SUM(poid.units_delivered_received) AS received,
-					 SUM(invid.quantity) AS invoiced,
-					 SUM(poid.units_delivered_received) - SUM(invid.quantity) AS instock
-				FROM vtiger_products AS p
-				INNER JOIN vtiger_crmentity AS p_ent
-					ON p.productid = p_ent.crmid
-					AND p_ent.deleted = 0
-				INNER JOIN vtiger_inventorydetails AS poid
-					ON poid.productid = p.productid
-					AND (
-						SELECT `setype`
-						FROM vtiger_crmentity
-						WHERE vtiger_crmentity.crmid = poid.related_to
-						AND vtiger_crmentity.deleted = 0
-					) = 'PurchaseOrder'
-				INNER JOIN vtiger_crmentity AS poid_ent
-					ON poid.inventorydetailsid = poid_ent.crmid
-					AND poid_ent.deleted = 0
-				INNER JOIN vtiger_inventorydetails AS invid
-					ON invid.productid = p.productid
-					AND (
-						SELECT `setype`
-						FROM vtiger_crmentity
-						WHERE vtiger_crmentity.crmid = invid.related_to
-						AND vtiger_crmentity.deleted = 0
-					) = 'Invoice'
-				INNER JOIN vtiger_crmentity AS invid_ent
-					ON invid.inventorydetailsid = invid_ent.crmid
-					AND invid_ent.deleted = 0
-				{$filter}
-				GROUP BY p.productid";
+		$q = "SELECT
+				T1.product_no,
+				T1.productname,
+				T1.productid,
+				T1.invoiced,
+				T2.received,
+				T2.received - T1.invoiced AS instock
+				FROM (
+				SELECT p.productid,
+					p.product_no,
+					p.productname,
+					SUM(invid.quantity) AS invoiced
+						FROM vtiger_products AS p
+						INNER JOIN vtiger_crmentity AS p_ent
+							ON p.productid = p_ent.crmid
+							AND p_ent.deleted = 0
+						INNER JOIN vtiger_inventorydetails AS invid
+							ON invid.productid = p.productid
+							AND (
+								SELECT `setype`
+								FROM vtiger_crmentity
+								WHERE vtiger_crmentity.crmid = invid.related_to
+								AND vtiger_crmentity.deleted = 0
+							) = 'Invoice'
+						INNER JOIN vtiger_crmentity AS invid_ent
+							ON invid.inventorydetailsid = invid_ent.crmid
+							AND invid_ent.deleted = 0
+						{$filter}
+						GROUP BY p.productid
+				) AS T1 JOIN (
+				SELECT p.productid,
+					p.productname,
+					SUM(poid.units_delivered_received) AS received
+						FROM vtiger_products AS p
+						INNER JOIN vtiger_crmentity AS p_ent
+							ON p.productid = p_ent.crmid
+							AND p_ent.deleted = 0
+						INNER JOIN vtiger_inventorydetails AS poid
+							ON poid.productid = p.productid
+							AND (
+								SELECT `setype`
+								FROM vtiger_crmentity
+								WHERE vtiger_crmentity.crmid = poid.related_to
+								AND vtiger_crmentity.deleted = 0
+							) = 'PurchaseOrder'
+						INNER JOIN vtiger_crmentity AS poid_ent
+							ON poid.inventorydetailsid = poid_ent.crmid
+							AND poid_ent.deleted = 0
+						{$filter}
+						GROUP BY p.productid
+				) AS T2";
 		$r = $adb->query($q);
 		return $r;
 	}
@@ -571,6 +588,23 @@ class InventoryExtras {
 	}
 
 	/**
+	 * Make sure the numerical properties of a product
+	 * that we want to update exist so we don't run into
+	 * errors when trying to do math with them
+	 *
+	 * @param  array $product The product, passed by reference
+	 * @return None
+	 * @throws None
+	 */
+	private function sanitizeProductArray(array &$product) : void {
+		foreach (self::NUMERICAL_KEYS as $key) {
+			if (!array_key_exists($key, $product)) {
+				$product[$key] = (float)0;
+			}
+		}
+	}
+
+	/**
 	 * Update a single product
 	 *
 	 * @param array   $product An array that contains the product information
@@ -598,7 +632,19 @@ class InventoryExtras {
 		$p->id = $product['productid'];
 		$p->mode = 'edit';
 
-		// Do stuff here
+		$this->sanitizeProductArray($product);
+
+		foreach (self::FIELD_MAPPING as $cbcolumnname => $iekey) {
+			$p->column_fields[$cbcolumnname] = (string)number_format($product[$iekey], 6, '.', '');
+		}
+
+		$p->column_fields['invextras_prod_stock_avail'] = ($product['instock'] - $product['inorder']);
+		$p->column_fields['invextras_prod_qty_to_order'] =
+			($product['inorder'] + (float)$p->column_fields['reorderlevel']) -
+			($product['instock'] + $product['inbackorder']);
+
+		$p->column_fields['invextras_prod_stock_avail'] = (string)number_format($p->column_fields['invextras_prod_stock_avail'], 6, '.', '');
+		$p->column_fields['invextras_prod_qty_to_order'] = (string)number_format($p->column_fields['invextras_prod_qty_to_order'], 6, '.', '');
 
 		$handler = vtws_getModuleHandlerFromName('Products', $current_user);
 		$meta = $handler->getMeta();
