@@ -11,26 +11,34 @@ require_once('Smarty_setup.php');
 $smarty = new vtigerCRM_Smarty();
 
 global $adb, $current_user;
-$r = $adb->pquery("SELECT vtiger_inventorydetails.invextras_qty_in_order AS qty, 
-						  vtiger_inventorydetails.related_to,
-						  vtiger_salesorder.subject, 
-						  vtiger_account.accountname FROM 
-						  vtiger_inventorydetails INNER JOIN vtiger_crmentity ON 
-						  vtiger_inventorydetails.inventorydetailsid = vtiger_crmentity.crmid 
-						  INNER JOIN vtiger_salesorder ON 
-						  vtiger_inventorydetails.related_to = vtiger_salesorder.salesorderid 
-						  INNER JOIN vtiger_account ON 
-						  vtiger_inventorydetails.account_id = vtiger_account.accountid 
-						  INNER JOIN vtiger_crmentity crment_so ON 
-						  vtiger_salesorder.salesorderid = crment_so.crmid 
-						  WHERE vtiger_inventorydetails.productid = ? 
-						  AND crment_so.deleted = ? 
-						  AND vtiger_crmentity.deleted = ? 
-						  AND vtiger_inventorydetails.invextras_qty_in_order IS NOT NULL 
-						  AND vtiger_inventorydetails.invextras_qty_in_order != ?
-						  AND (vtiger_salesorder.invextras_so_no_stock_change = ? OR 
-							   vtiger_salesorder.invextras_so_no_stock_change IS NULL)
-						  AND vtiger_salesorder.sostatus != ?", array($_REQUEST['record'], 0, 0, 0, 0, 'Cancelled'));
+$r = $adb->query("SELECT so.salesorderid AS related_to,
+						 so.subject,
+						 acc.accountname,
+						 (soid.quantity - soid.units_delivered_received) AS qty
+					FROM vtiger_products AS p
+					INNER JOIN vtiger_crmentity AS p_ent
+						ON p.productid = p_ent.crmid
+						AND p_ent.deleted = 0
+					INNER JOIN vtiger_inventorydetails AS soid
+						ON p.productid = soid.productid
+						AND (
+							SELECT `setype`
+							FROM vtiger_crmentity
+							WHERE vtiger_crmentity.crmid = soid.related_to
+							AND vtiger_crmentity.deleted = 0
+						) = 'SalesOrder'
+					INNER JOIN vtiger_salesorder AS so
+						ON soid.related_to = so.salesorderid
+						AND so.sostatus != 'Delivered'
+						AND so.sostatus != 'Cancelled'
+						AND so.sostatus != 'Niet geleverd'
+						AND so.invextras_so_no_stock_change != 1
+					INNER JOIN vtiger_crmentity AS soid_ent
+						ON soid.inventorydetailsid = soid_ent.crmid
+						AND soid_ent.deleted = 0
+					INNER JOIN vtiger_account AS acc
+						ON so.accountid = acc.accountid
+					WHERE p.productid = {$_REQUEST['record']}");
 
 $lines = array();
 while ($line = $adb->fetch_array($r)) {
