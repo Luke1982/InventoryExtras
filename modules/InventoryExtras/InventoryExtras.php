@@ -151,6 +151,7 @@ class InventoryExtras {
 			$this->doInstallcbUpdates();
 			$this->doRemoveInvExtrasBlockInInvendet();
 			$this->removeInvenExtrasEventHandlers();
+			$this->doCreateWorkflowFunction();
 		}
 	}
 
