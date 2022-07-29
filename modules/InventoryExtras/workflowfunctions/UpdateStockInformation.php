@@ -68,6 +68,7 @@ function combineProductObjects(
 	object &$backorder_object
 ) : array {
 
+	require_once 'modules/InventoryExtras/InventoryExtras.php';
 	require_once 'modules/InventoryExtras/workflowfunctions/CBXGenerator.php';
 
 	$products = array_fill_keys(array_values($product_ids), array());
@@ -76,7 +77,7 @@ function combineProductObjects(
 		foreach (CBX\rowGenerator($object) as $product) {
 			foreach ($product as $key => $value) {
 				if (is_string($key)) {
-					$products[$product['productid']][$key] = $value;
+					$products[$product['productid']][$key] = in_array($key, InventoryExtras::NUMERICAL_KEYS) ? (float)$value : $value;
 				}
 			}
 		}
