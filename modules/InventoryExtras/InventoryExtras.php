@@ -152,6 +152,7 @@ class InventoryExtras {
 			$this->doRemoveInvExtrasBlockInInvendet();
 			$this->removeInvenExtrasEventHandlers();
 			$this->doCreateWorkflowFunction();
+			self::installStockDetailsWidget();
 		}
 	}
 
@@ -164,6 +165,7 @@ class InventoryExtras {
 		$this->doAddProductInBackOrderOnWidget();
 		$this->doAddInventoryExtrasHeaderScript();
 		$this->doInstallcbUpdates();
+		self::installStockDetailsWidget();
 	}
 
 
@@ -460,6 +462,28 @@ class InventoryExtras {
 
 	public function getPrefix() {
 		return $this->prefix;
+	}
+
+	/**
+	 * Install the StockDetails widget
+	 *
+	 * @param  Null
+	 * @return Null
+	 * @throws Null
+	 */
+	private static function installStockDetailsWidget() {
+		include_once 'vtlib/Vtiger/Module.php';
+		$module = Vtiger_Module::getInstance('Products');
+		$linktypes = array('DETAILVIEWWIDGET', 'EDITVIEWWIDGET');
+		foreach ($linktypes as $linktype) {
+			$module->addLink(
+				$linktype,
+				'StockDetails',
+				'block://StockDetailsBlock:modules/InventoryExtras/StockDetailsBlock.php',
+				'',
+				3
+			);
+		}
 	}
 
 	/**
