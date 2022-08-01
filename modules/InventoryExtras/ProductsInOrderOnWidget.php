@@ -7,7 +7,7 @@
  * Portions created by vtiger are Copyright (C) vtiger.
  * All Rights Reserved.
  ************************************************************************************/
-require_once('Smarty_setup.php');
+require_once 'Smarty_setup.php';
 $smarty = new vtigerCRM_Smarty();
 
 global $adb, $current_user;
