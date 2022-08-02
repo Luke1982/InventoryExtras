@@ -487,6 +487,113 @@ class InventoryExtras {
 	}
 
 	/**
+	 * Get the inventorylines that are relevant to
+	 * the stock calculation and stock-related fields
+	 * calculation (like quantity in demand, quantity
+	 * in order, etc.).
+	 *
+	 * @param  int    $productid   The product CRM ID of the product
+	 * @return object $productinfo The database object representing
+	 * 							   the inventorydetails lines that
+	 * 							   are relevant to the stock accountability
+	 * 							   information
+	 * @throws None
+	 */
+	public function getStockAccountabilityObject(int $productid) : object {
+		global $adb;
+
+		$q = "SELECT p.productid,
+					 p.product_no,
+					 p.productname,
+					 inv.invoice_no AS entity_no,
+					 'Invoice' AS entitytype,
+					 inv.invoiceid AS entityid,
+					 invid.quantity AS invoiced,
+					 0 AS purchased,
+					 0 AS received,
+					 0 AS sold,
+					 0 AS delivered,
+					 0 AS inorder
+				FROM vtiger_products AS p
+				INNER JOIN vtiger_crmentity AS p_ent
+					ON p.productid = p_ent.crmid
+					AND p_ent.deleted = 0
+				INNER JOIN vtiger_inventorydetails AS invid
+					ON invid.productid = p.productid
+				INNER JOIN vtiger_crmentity AS invid_ent
+					ON invid.inventorydetailsid = invid_ent.crmid
+					AND invid_ent.deleted = 0
+				INNER JOIN vtiger_invoice AS inv
+					ON inv.invoiceid = invid.related_to
+				INNER JOIN vtiger_crmentity AS inv_ent
+					ON inv.invoiceid = inv_ent.crmid
+					AND inv_ent.deleted = 0
+				WHERE p.productid = {$productid}
+			UNION
+			SELECT 	 p.productid,
+					 p.product_no,
+					 p.productname,
+					 po.purchaseorder_no AS entity_no,
+					 'PurchaseOrder' AS entitytype,
+					 po.purchaseorderid AS entityid,
+					 0 AS invoiced,
+					 poid.quantity AS purchased,
+					 poid.units_delivered_received AS received,
+					 0 AS sold,
+					 0 AS delivered,
+					 0 AS inorder
+				FROM vtiger_products AS p
+				INNER JOIN vtiger_crmentity AS p_ent
+					ON p.productid = p_ent.crmid
+					AND p_ent.deleted = 0
+				INNER JOIN vtiger_inventorydetails AS poid
+					ON poid.productid = p.productid
+				INNER JOIN vtiger_crmentity AS poid_ent
+					ON poid.inventorydetailsid = poid_ent.crmid
+					AND poid_ent.deleted = 0
+				INNER JOIN vtiger_purchaseorder AS po
+					ON po.purchaseorderid = poid.related_to
+				INNER JOIN vtiger_crmentity AS po_ent
+					ON po.purchaseorderid = po_ent.crmid
+					AND po_ent.deleted = 0
+				WHERE p.productid = {$productid}
+			UNION
+			SELECT 	 p.productid,
+					 p.product_no,
+					 p.productname,
+					 so.salesorder_no AS entity_no,
+					 'SalesOrder' AS entitytype,
+					 so.salesorderid AS entityid,
+					 0 AS invoiced,
+					 0 AS purchased,
+					 0 AS received,
+					 soid.quantity AS sold,
+					 soid.units_delivered_received AS delivered,
+					 soid.quantity - soid.units_delivered_received AS inorder
+				FROM vtiger_products AS p
+				INNER JOIN vtiger_crmentity AS p_ent
+					ON p.productid = p_ent.crmid
+					AND p_ent.deleted = 0
+				INNER JOIN vtiger_inventorydetails AS soid
+					ON p.productid = soid.productid
+				INNER JOIN vtiger_salesorder AS so
+					ON soid.related_to = so.salesorderid
+					AND so.sostatus != 'Delivered'
+					AND so.sostatus != 'Cancelled'
+					AND so.sostatus != 'Niet geleverd'
+					AND so.invextras_so_no_stock_change != 1
+				INNER JOIN vtiger_crmentity AS so_ent
+					ON so.salesorderid = so_ent.crmid
+					AND so_ent.deleted = 0
+				INNER JOIN vtiger_crmentity AS soid_ent
+					ON soid.inventorydetailsid = soid_ent.crmid
+					AND soid_ent.deleted = 0
+				WHERE p.productid = {$productid}
+			";
+		return $adb->query($q);
+	}
+
+	/**
 	 * Get the current quantity in backorder for
 	 * each product by taking the PurchaseOrders
 	 * that are pending, getting the quantity ordered

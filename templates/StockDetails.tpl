@@ -15,7 +15,7 @@
 	</h3>
 	<div aria-hidden="false" class="slds-section__content" id="stockdetails-expandable-sectioncontent">
 		<div class="slds-box">
-			<div class="slds-grid">
+			<div class="slds-grid slds-wrap">
 				<div class="slds-col slds-size_1-of-2">
 					<div class="slds-grid" style="font-size: 1.1rem;">
 						<div class="slds-col slds-size_10-of-12 slds-text-align_right">
@@ -366,6 +366,54 @@
 						</div>
 						<div class="slds-col slds-text-align_right slds-size_2-of-12" style="position: relative;">
 							&nbsp;{$fields->value.invextras_prod_qty_to_order|number_format:2:',':'.'}
+						</div>
+					</div>
+				</div>
+				<div class="slds-col slds-size_1-of-1">
+					<div class="slds-button-group">
+						<a class="slds-button slds-button_brand"
+							href="index.php?module=InventoryExtras&action=InventoryExtrasAjax&file=CommonAjaxActions&function=getAccountabilityReportForProduct&productid={$recordid->value}"
+							target="_blank">
+							<svg class="slds-button__icon slds-button__icon_left" aria-hidden="true">
+								<use xlink:href="include/LD/assets/icons/utility-sprite/svg/symbols.svg#download"></use>
+							</svg>
+							Download verantwoording
+						</a>
+						<div style="display: inline-block; position: relative;">
+							<button
+								class="slds-button slds-button_icon slds-button slds-button_icon"
+								aria-describedby="help"
+								aria-disabled="true"
+								title="Help"
+								onMouseOver="javascript:this.nextElementSibling.style.display = 'block'"
+								onMouseOut="javascript:this.nextElementSibling.style.display = 'none'"
+							>
+								<svg class="slds-button__icon" aria-hidden="true">
+									<use xlink:href="include/LD/assets/icons/utility-sprite/svg/symbols.svg#info"></use>
+								</svg>
+								<span class="slds-assistive-text">
+									Meer informatie
+								</span>
+							</button>
+							<div
+								class="slds-popover slds-popover_tooltip slds-nubbin_bottom-left slds-text-align_left"
+								role="tooltip"
+								id="help"
+								style="position: absolute; transform: translate3d(-2rem, calc(-100% - 2rem), 0); left: 15px; display: none; width:20rem">
+									<div class="slds-popover__body" style="font-size: 0.8rem;">
+										Met deze knop download je een excel die je precies
+										laat zien hoe deze cijfers zijn opgebouwd. Je excel
+										krijgt drie werkbladen:<br><br>
+										<b>Inkoop orders</b><br>
+										Hierop zie je per inkoopordernummer hoeveel van dit
+										product er besteld zijn en hoeveel ontvangen.<br><br>
+										<b>Verkoop orders</b><br>
+										Hierop zie je per verkooporder hoeveel er zijn verkocht,
+										hoeveel er zijn uitgeleverd en hoeveel er dus resteren.<br><br>
+										<b>Facturen</b><br>
+										Hierop zie je hoeveel er gefactureerd zijn.
+									</div>
+							</div>
 						</div>
 					</div>
 				</div>

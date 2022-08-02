@@ -28,6 +28,7 @@ class StockDetailsBlock_RenderBlock extends StockDetailsBlock {
 	 */
 	public function process(array $context) : void {
 		$smarty = new vtigerCRM_Smarty;
+		$smarty->assign('recordid', $context['ID']);
 		$smarty->assign('fields', $context['FIELDS']);
 		$smarty->display('modules/InventoryExtras/StockDetails.tpl');
 	}
