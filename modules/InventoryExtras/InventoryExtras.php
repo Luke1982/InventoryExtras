@@ -700,7 +700,8 @@ class InventoryExtras {
 							AND poid_ent.deleted = 0
 						{$filter}
 						GROUP BY p.productid
-				) AS T2";
+				) AS T2
+					ON T1.productid = T2.productid";
 		$r = $adb->query($q);
 		return $r;
 	}
