@@ -104,7 +104,7 @@ function combineProductObjects(
 
 	$products = array_fill_keys(array_values($product_ids), array());
 	$objects = array($stock_object, $inorder_object, $backorder_object);
-	array_walk($objects, function (&$object) use (&$products) {
+	array_walk($objects, function ($object) use (&$products) {
 		foreach (CBX\rowGenerator($object) as $product) {
 			foreach ($product as $key => $value) {
 				if (is_string($key)) {
