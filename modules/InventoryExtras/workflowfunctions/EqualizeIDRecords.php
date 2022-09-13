@@ -17,6 +17,8 @@
 function EqualizeIDRecords($entity) {
 	global $adb, $current_user;
 	require_once 'modules/InventoryDetails/InventoryDetails.php';
+	$ajxholder = $_REQUEST['ajxaction'];
+	unset($_REQUEST['ajxaction']);
 
 	list($wsid, $id) = explode('x', $entity->id);
 	$r = $adb->pquery("SELECT vtiger_inventorydetails.inventorydetailsid, 
@@ -41,4 +43,6 @@ function EqualizeIDRecords($entity) {
 
 		$id->save('InventoryDetails');
 	}
+
+	$_REQUEST['ajxaction'] = $ajxholder;
 }
